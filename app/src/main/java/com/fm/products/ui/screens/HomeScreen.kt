@@ -38,17 +38,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.toOffset
-import androidx.compose.ui.unit.toSize
 import com.fm.products.R
 import com.fm.products.ui.components.ToolButton
+import com.fm.products.ui.models.RectangleSelectionPosition
 import com.fm.products.ui.models.Tools
 import com.fm.products.ui.theme.PhotoEditorTheme
 import com.fm.products.ui.theme.PurpleGrey80
 import com.fm.products.ui.utils.buttonStateColor
 import com.fm.products.ui.utils.calculateDrawImageOffset
 import com.fm.products.ui.utils.calculateDrawImageSize
-import com.fm.products.ui.utils.dashStyle
+import com.fm.products.ui.utils.drawRectangleSelection
 import com.fm.products.ui.utils.leftBottomCircleOffset
 import com.fm.products.ui.utils.leftTopCircleOffset
 import com.fm.products.ui.utils.rightBottomCircleOffset
@@ -72,7 +71,7 @@ private fun HomeScreenContent() {
     )
 
     var selectedTool by remember {
-        mutableStateOf(Tools.CircleSelection)
+        mutableStateOf(Tools.None)
     }
 
 
@@ -92,7 +91,10 @@ private fun HomeScreenContent() {
             )
         } else {
             image?.let {
-                ImageEditState(it)
+                ImageEditState(
+                    imageUri = it,
+                    selectedTool = selectedTool,
+                )
             }
         }
     }
@@ -115,10 +117,16 @@ private fun SelectImageState(
 }
 
 @Composable
-private fun ImageEditState(imageUri: Uri) {
+private fun ImageEditState(
+    imageUri: Uri,
+    selectedTool: Tools,
+) {
     val context = LocalContext.current
     val image = remember {
         imageUri.toImageBitmap(context)
+    }
+    var rectangleSelectionPos by remember {
+        mutableStateOf(RectangleSelectionPosition())
     }
 
     Canvas(
@@ -140,43 +148,37 @@ private fun ImageEditState(imageUri: Uri) {
             drawImageSize = drawSize
         )
 
+        if (rectangleSelectionPos.isEmpty()) {
+            rectangleSelectionPos = RectangleSelectionPosition(
+                leftTop = leftTopCircleOffset(drawOffset),
+                leftBottom = leftBottomCircleOffset(drawOffset, drawSize),
+                rightTop = rightTopCircleOffset(drawOffset, drawSize),
+                rightBottom = rightBottomCircleOffset(drawOffset, drawSize),
+                drawSize = drawSize,
+                drawOffset = drawOffset,
+            )
+        }
+
         drawImage(
             image = image,
             dstSize = drawSize,
             dstOffset = drawOffset
         )
 
-        drawRect(
-            color = Color.LightGray,
-            topLeft = drawOffset.toOffset(),
-            style = dashStyle(),
-            size = drawSize.toSize()
-        )
-
-        drawCircle(
-            color = Color.Magenta,
-            radius = 20f,
-            center = leftTopCircleOffset(drawOffset)
-        )
-
-
-        drawCircle(
-            color = Color.Magenta,
-            radius = 20f,
-            center = rightTopCircleOffset(drawOffset, drawSize)
-        )
-
-        drawCircle(
-            color = Color.Magenta,
-            radius = 20f,
-            center = leftBottomCircleOffset(drawOffset, drawSize)
-        )
-
-        drawCircle(
-            color = Color.Magenta,
-            radius = 20f,
-            center = rightBottomCircleOffset(drawOffset, drawSize)
-        )
+        when(selectedTool) {
+            Tools.LassoSelection -> {
+                /* no-op */
+            }
+            Tools.RectangleSelection -> {
+                drawRectangleSelection(rectangleSelectionPos)
+            }
+            Tools.CircleSelection -> {
+                /* no-op */
+            }
+            Tools.None -> {
+                /* no-op */
+            }
+        }
     }
 
 }

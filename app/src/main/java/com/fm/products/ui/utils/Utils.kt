@@ -7,9 +7,7 @@ import android.os.Build
 import android.provider.MediaStore
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 
@@ -50,35 +48,8 @@ fun calculateDrawImageOffset(
     return IntOffset(offsetX.toInt(), offsetY.toInt())
 }
 
-fun dashStyle(): Stroke {
-    val pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
-    return Stroke(width = 10f, pathEffect = pathEffect)
-}
+fun emptyOffset() = Offset(0f, 0f)
+fun emptyIntOffset() = IntOffset(0, 0)
+fun emptyIntSize() = IntSize(0, 0)
 
-fun leftTopCircleOffset(drawOffset: IntOffset): Offset {
-    return Offset(
-        drawOffset.x.toFloat() + 10,
-        drawOffset.y.toFloat() + 10,
-    )
-}
-
-fun rightTopCircleOffset(drawOffset: IntOffset, drawSize: IntSize): Offset {
-    return Offset(
-        drawOffset.x.toFloat() + drawSize.width - 10,
-        drawOffset.y.toFloat() + 10,
-    )
-}
-
-fun leftBottomCircleOffset(drawOffset: IntOffset, drawSize: IntSize): Offset {
-    return Offset(
-        drawOffset.x.toFloat() + 10,
-        drawOffset.y.toFloat() + drawSize.height - 10,
-    )
-}
-
-fun rightBottomCircleOffset(drawOffset: IntOffset, drawSize: IntSize): Offset {
-    return Offset(
-        drawOffset.x.toFloat() + drawSize.width - 10,
-        drawOffset.y.toFloat() + drawSize.height - 10,
-    )
-}
+fun Offset.isEmpty() = x == 0f && y == 0f
