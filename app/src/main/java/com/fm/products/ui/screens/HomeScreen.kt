@@ -35,25 +35,27 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.fm.products.ui.components.ExportButton
-import com.fm.products.ui.models.CircleSelectionPosition
-import com.fm.products.ui.models.RectangleSelectionPosition
+import com.fm.products.ui.models.CircleSelectionState
+import com.fm.products.ui.models.RectangleSelectionState
 import com.fm.products.ui.models.SelectionTool
-import com.fm.products.ui.models.Tools
 import com.fm.products.ui.screens.components.HomeToolbar
 import com.fm.products.ui.theme.PhotoEditorTheme
 import com.fm.products.ui.utils.calculateDefaultCircleSelectionPosition
 import com.fm.products.ui.utils.calculateDefaultRectangleSelectionPosition
 import com.fm.products.ui.utils.calculateDrawImageOffset
 import com.fm.products.ui.utils.calculateDrawImageSize
+import com.fm.products.ui.utils.createMotionHandler
+import com.fm.products.ui.utils.cropper.RectangleCropper
 import com.fm.products.ui.utils.drawCircleSelection
 import com.fm.products.ui.utils.drawRectangleSelection
 import com.fm.products.ui.utils.emptyIntOffset
 import com.fm.products.ui.utils.emptyIntSize
+import com.fm.products.ui.utils.emptySize
 import com.fm.products.ui.utils.isEmpty
 import com.fm.products.ui.utils.motions.CircleSelectionMotionHandler
 import com.fm.products.ui.utils.motions.MotionHandler
-import com.fm.products.ui.utils.motions.RectangleCropper
 import com.fm.products.ui.utils.motions.RectangleSelectionMotionHandler
+import com.fm.products.ui.utils.orFalse
 import com.fm.products.ui.utils.saveToDisk
 import com.fm.products.ui.utils.toImageBitmap
 
@@ -74,7 +76,7 @@ private fun HomeScreenContent() {
     )
 
     var selectedTool by remember {
-        mutableStateOf(Tools.RectangleSelection)
+        mutableStateOf(SelectionTool.RectangleSelection)
     }
 
 
@@ -122,157 +124,151 @@ private fun SelectImageState(
 @Composable
 private fun ImageEditState(
     imageUri: Uri,
-    selectedTool: Tools,
+    selectedTool: SelectionTool,
 ) {
     val context = LocalContext.current
 
     val image = remember { imageUri.toImageBitmap(context) }
 
-    var outputImage: Bitmap? = remember { null }
-
     Box {
         HomeCanvas(
             selectedTool = selectedTool,
             image = image,
-            drawOnOutputBitmap = { tools, canvasSize, imageOffset ->
-                when(tools) {
-                    is RectangleSelectionPosition -> {
-                        outputImage = RectangleCropper(tools, image, canvasSize, imageOffset).crop()
-                    }
-                }
-            }
-        )
-
-        ExportButton(
-            selectedTool = selectedTool,
-            onClick = {
-                outputImage?.saveToDisk()?.let {
+            drawOnOutputBitmap = { outputImage ->
+                outputImage.saveToDisk().let {
                     Toast.makeText(context, "Picture saved", Toast.LENGTH_SHORT).show()
                 }
-            },
-            modifier = Modifier
-                .padding(40.dp)
-                .align(Alignment.BottomCenter),
+            }
         )
     }
 }
 
 @Composable
 private fun HomeCanvas(
-    selectedTool: Tools,
+    selectedTool: SelectionTool,
     image: ImageBitmap,
-    drawOnOutputBitmap: (SelectionTool, Size, IntOffset) -> Unit,
+    drawOnOutputBitmap: (Bitmap) -> Unit,
 ) {
-    var rectangleSelectionPos by remember { mutableStateOf(RectangleSelectionPosition()) }
+    var rectangleSelectionState by remember { mutableStateOf(RectangleSelectionState()) }
 
-    var circleSelectionPos by remember { mutableStateOf(CircleSelectionPosition()) }
+    var circleSelectionState by remember { mutableStateOf(CircleSelectionState()) }
 
     var imagePosition: IntOffset by remember { mutableStateOf(emptyIntOffset()) }
 
     var imageSize: IntSize by remember { mutableStateOf(emptyIntSize()) }
 
-    val motionHandler: MotionHandler by remember(selectedTool) {
-        val motionHandler = when (selectedTool) {
-            Tools.CircleSelection -> {
-                CircleSelectionMotionHandler(
-                    circleSelectionPosition = circleSelectionPos,
-                    onUpdateCircleSelectionPosition = { circleSelectionPos = it },
-                    imagePosition = imagePosition,
-                    imageSize = imageSize,
-                )
-            }
+    var canvasSize: Size by remember { mutableStateOf(emptySize()) }
 
-            else -> {
-                RectangleSelectionMotionHandler(
-                    rectangleSelectionPosition = rectangleSelectionPos,
-                    onUpdateRectangleSelectionPosition = { rectangleSelectionPos = it },
-                    imagePosition = imagePosition,
-                    imageSize = imageSize,
-                )
-            }
-        }
+    val motionHandler: MotionHandler<*>? by remember(selectedTool) {
+        val motionHandler = createMotionHandler(
+            selectionTool = selectedTool,
+            circleSelectionState = circleSelectionState,
+            onUpdateCircleSelectionState = { circleSelectionState = it },
+            rectangleSelectionState = rectangleSelectionState,
+            onUpdateRectangleSelectionState = { rectangleSelectionState = it  },
+            imageSize = imageSize,
+            imagePosition = imagePosition,
+        )
         mutableStateOf(motionHandler)
     }
 
     when (val handler = motionHandler) {
         is CircleSelectionMotionHandler -> {
-            LaunchedEffect(circleSelectionPos, imagePosition, imageSize) {
-                handler.circleSelectionPosition = circleSelectionPos
-                handler.imageSize = imageSize
-                handler.imagePosition = imagePosition
+            LaunchedEffect(circleSelectionState, imagePosition, imageSize) {
+                handler.update(circleSelectionState, imageSize, imagePosition)
             }
         }
 
         is RectangleSelectionMotionHandler -> {
-            LaunchedEffect(rectangleSelectionPos, imagePosition, imageSize) {
-                handler.rectangleSelectionPosition = rectangleSelectionPos
-                handler.imageSize = imageSize
-                handler.imagePosition = imagePosition
+            LaunchedEffect(rectangleSelectionState, imagePosition, imageSize) {
+                handler.update(rectangleSelectionState, imageSize, imagePosition)
             }
         }
     }
+
 
     Canvas(
         modifier = Modifier
             .fillMaxSize()
             .padding(4.dp)
-            .pointerInteropFilter { motionHandler.handleMotion(it) },
+            .pointerInteropFilter { motionHandler?.handleMotion(it).orFalse() },
     ) {
 
-        val drawSize = calculateDrawImageSize(
-            canvasWidth = size.width,
-            canvasHeight = size.height,
-            imageWidth = image.width.toFloat(),
-            imageHeight = image.height.toFloat(),
-        )
 
-        val drawOffset = calculateDrawImageOffset(
-            canvasWidth = size.width,
-            canvasHeight = size.height,
-            drawImageSize = drawSize
-        )
-        if (imagePosition.isEmpty()) {
-            imagePosition = drawOffset
-        }
+        canvasSize = size
 
         if (imageSize.isEmpty()) {
-            imageSize = drawSize
+            imageSize = calculateDrawImageSize(
+                canvasWidth = size.width,
+                canvasHeight = size.height,
+                imageWidth = image.width.toFloat(),
+                imageHeight = image.height.toFloat(),
+            )
         }
 
-        if (rectangleSelectionPos.isEmpty()) {
-            rectangleSelectionPos = calculateDefaultRectangleSelectionPosition(drawSize, drawOffset)
+        if (imagePosition.isEmpty()) {
+            imagePosition = calculateDrawImageOffset(
+                canvasWidth = size.width,
+                canvasHeight = size.height,
+                drawImageSize = imageSize
+            )
         }
 
-        if (circleSelectionPos.isEmpty()) {
-            circleSelectionPos = calculateDefaultCircleSelectionPosition(drawSize, center)
+        if (rectangleSelectionState.isEmpty()) {
+            rectangleSelectionState =
+                calculateDefaultRectangleSelectionPosition(imageSize, imagePosition)
+        }
+
+        if (circleSelectionState.isEmpty()) {
+            circleSelectionState = calculateDefaultCircleSelectionPosition(imageSize, center)
         }
 
         drawImage(
             image = image,
-            dstSize = drawSize,
-            dstOffset = drawOffset
+            dstSize = imageSize,
+            dstOffset = imagePosition
         )
 
         when (selectedTool) {
-            Tools.LassoSelection -> {
-                /* no-op */
+            SelectionTool.RectangleSelection -> {
+                drawRectangleSelection(rectangleSelectionState)
             }
 
-            Tools.RectangleSelection -> {
-                drawRectangleSelection(rectangleSelectionPos)
-                drawOnOutputBitmap(rectangleSelectionPos, size, drawOffset)
+            SelectionTool.CircleSelection -> {
+                drawCircleSelection(circleSelectionState)
             }
 
-            Tools.CircleSelection -> {
-                drawCircleSelection(circleSelectionPos)
-                drawOnOutputBitmap(circleSelectionPos, size, drawOffset)
-            }
-
-            Tools.None -> {
+            SelectionTool.None -> {
                 /* no-op */
             }
         }
     }
+
+    ExportButton(
+        selectedTool = selectedTool,
+        onClick = {
+            when (selectedTool) {
+                SelectionTool.RectangleSelection -> {
+                    val bitmap = RectangleCropper(
+                        rectangleSelectionState = rectangleSelectionState,
+                        image = image,
+                        canvasSize = canvasSize,
+                        imageOffset = imagePosition
+                    ).crop()
+                    drawOnOutputBitmap(bitmap)
+                }
+
+                SelectionTool.CircleSelection -> {
+                    /* no-op */
+                }
+
+                SelectionTool.None -> {
+                    /* no-op */
+                }
+            }
+        },
+        modifier = Modifier.padding(40.dp)
+    )
 }
 
 @Composable

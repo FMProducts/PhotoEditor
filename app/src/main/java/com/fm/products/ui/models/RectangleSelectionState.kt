@@ -8,7 +8,7 @@ import com.fm.products.ui.utils.emptyIntSize
 import com.fm.products.ui.utils.emptyOffset
 import com.fm.products.ui.utils.isEmpty
 
-data class RectangleSelectionPosition(
+data class RectangleSelectionState(
     val leftTop: Offset,
     val leftBottom: Offset,
     val rightTop: Offset,
@@ -16,7 +16,7 @@ data class RectangleSelectionPosition(
     val drawSize: IntSize,
     val drawOffset: IntOffset,
     val activePoint: ActivePoint?,
-) : SelectionTool {
+) : SelectionState {
 
     constructor() : this(
         leftTop = emptyOffset(),
@@ -28,7 +28,7 @@ data class RectangleSelectionPosition(
         activePoint = null,
     )
 
-    fun isEmpty() =
+    override fun isEmpty() =
         leftTop.isEmpty() && leftBottom.isEmpty() && rightTop.isEmpty() && rightBottom.isEmpty()
 
     enum class ActivePoint {

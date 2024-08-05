@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.PathEffect
@@ -55,11 +56,15 @@ fun emptyOffset() = Offset(0f, 0f)
 fun emptyIntOffset() = IntOffset(0, 0)
 fun emptyIntSize() = IntSize(0, 0)
 
+fun emptySize() = Size(0f, 0f)
+
 fun Offset.isEmpty() = x == 0f && y == 0f
 
 fun IntOffset.isEmpty() = x == 0 && y == 0
 
 fun IntSize.isEmpty() = height == 0 && width == 0
+
+fun Boolean?.orFalse() = this ?: false
 
 fun pointColor(isActive: Boolean) = if (isActive) Color.Blue else Color.Magenta
 

@@ -1,4 +1,4 @@
-package com.fm.products.ui.utils.motions
+package com.fm.products.ui.utils.cropper
 
 import android.graphics.Bitmap
 import androidx.compose.ui.geometry.Size
@@ -9,10 +9,10 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import com.fm.products.ui.models.RectangleSelectionPosition
+import com.fm.products.ui.models.RectangleSelectionState
 
 class RectangleCropper(
-    private val rectangleSelectionPosition: RectangleSelectionPosition,
+    private val rectangleSelectionState: RectangleSelectionState,
     private val image: ImageBitmap,
     private val canvasSize: Size,
     private val imageOffset: IntOffset,
@@ -33,8 +33,8 @@ class RectangleCropper(
             srcBitmap.asImageBitmap(),
             paint = paint,
             srcOffset = IntOffset(
-                (rectangleSelectionPosition.drawOffset.x * scaleFactor).toInt(),
-                ((rectangleSelectionPosition.drawOffset.y - imageOffset.y) * scaleFactor).toInt()
+                (rectangleSelectionState.drawOffset.x * scaleFactor).toInt(),
+                ((rectangleSelectionState.drawOffset.y - imageOffset.y) * scaleFactor).toInt()
             )
         )
 
@@ -43,8 +43,8 @@ class RectangleCropper(
 
     private fun calculateSelectionSizeInPx(scaleFactor: Float): IntSize {
         return IntSize(
-            (rectangleSelectionPosition.drawSize.width * scaleFactor).toInt(),
-            (rectangleSelectionPosition.drawSize.height * scaleFactor).toInt(),
+            (rectangleSelectionState.drawSize.width * scaleFactor).toInt(),
+            (rectangleSelectionState.drawSize.height * scaleFactor).toInt(),
         )
     }
 

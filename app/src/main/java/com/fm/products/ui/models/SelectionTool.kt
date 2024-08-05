@@ -1,3 +1,7 @@
 package com.fm.products.ui.models
 
-interface SelectionTool
+enum class SelectionTool {
+    RectangleSelection,
+    CircleSelection,
+    None,
+}

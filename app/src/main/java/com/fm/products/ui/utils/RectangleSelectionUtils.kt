@@ -7,15 +7,15 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.unit.toSize
-import com.fm.products.ui.models.RectangleSelectionPosition
-import com.fm.products.ui.models.RectangleSelectionPosition.ActivePoint
+import com.fm.products.ui.models.RectangleSelectionState
+import com.fm.products.ui.models.RectangleSelectionState.ActivePoint
 
 
 fun calculateDefaultRectangleSelectionPosition(
     drawSize: IntSize,
     drawOffset: IntOffset,
-): RectangleSelectionPosition {
-    return RectangleSelectionPosition(
+): RectangleSelectionState {
+    return RectangleSelectionState(
         leftTop = calculateLeftTopPoint(drawOffset),
         leftBottom = calculateLeftBottomPoint(drawOffset, drawSize),
         rightTop = calculateRightTopPoint(drawOffset, drawSize),
@@ -54,7 +54,7 @@ fun calculateRightBottomPoint(drawOffset: IntOffset, drawSize: IntSize): Offset 
     )
 }
 
-fun DrawScope.drawRectangleSelection(position: RectangleSelectionPosition) {
+fun DrawScope.drawRectangleSelection(position: RectangleSelectionState) {
 
     drawRect(
         color = Color.LightGray,

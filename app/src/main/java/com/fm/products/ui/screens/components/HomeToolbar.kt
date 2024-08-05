@@ -23,14 +23,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.fm.products.R
 import com.fm.products.ui.components.ToolButton
-import com.fm.products.ui.models.Tools
+import com.fm.products.ui.models.SelectionTool
 import com.fm.products.ui.theme.PurpleGrey80
 import com.fm.products.ui.utils.buttonStateColor
 
 @Composable
 fun HomeToolbar(
-    selectedTool: Tools,
-    onToolsChanged: (Tools) -> Unit,
+    selectedTool: SelectionTool,
+    onToolsChanged: (SelectionTool) -> Unit,
 ) {
     Card(
         modifier = Modifier
@@ -50,36 +50,36 @@ fun HomeToolbar(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            ToolButton(
-                modifier = Modifier,
-                icon = painterResource(R.drawable.ic_lasso_select),
-                isEnable = selectedTool == Tools.LassoSelection,
-                onClick = { onToolsChanged(Tools.LassoSelection) }
-            )
+//            ToolButton( TODO()
+//                modifier = Modifier,
+//                icon = painterResource(R.drawable.ic_lasso_select),
+//                isEnable = selectedTool == Tools.LassoSelection,
+//                onClick = { onToolsChanged(Tools.LassoSelection) }
+//            )
             Spacer(Modifier.width(12.dp))
             ToolButton(
                 modifier = Modifier,
                 icon = painterResource(R.drawable.ic_select_square),
-                isEnable = selectedTool == Tools.RectangleSelection,
-                onClick = { onToolsChanged(Tools.RectangleSelection) }
+                isEnable = selectedTool == SelectionTool.RectangleSelection,
+                onClick = { onToolsChanged(SelectionTool.RectangleSelection) }
             )
             Spacer(Modifier.width(12.dp))
             ToolButton(
                 modifier = Modifier,
                 icon = painterResource(R.drawable.ic_select_circle),
-                isEnable = selectedTool == Tools.CircleSelection,
-                onClick = { onToolsChanged(Tools.CircleSelection) }
+                isEnable = selectedTool == SelectionTool.CircleSelection,
+                onClick = { onToolsChanged(SelectionTool.CircleSelection) }
             )
 
             Spacer(Modifier.width(12.dp))
             Button(
-                onClick = { onToolsChanged(Tools.None) },
+                onClick = { onToolsChanged(SelectionTool.None) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(IntrinsicSize.Max),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = buttonStateColor(selectedTool == Tools.None),
+                    containerColor = buttonStateColor(selectedTool == SelectionTool.None),
                 ),
             ) {
                 Text(
