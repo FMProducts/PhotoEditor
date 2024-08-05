@@ -2,28 +2,17 @@
 
 package com.fm.products.ui.screens
 
+import android.graphics.Bitmap
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -37,22 +26,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import com.fm.products.R
-import com.fm.products.ui.components.ToolButton
+import com.fm.products.ui.components.ExportButton
 import com.fm.products.ui.models.CircleSelectionPosition
 import com.fm.products.ui.models.RectangleSelectionPosition
+import com.fm.products.ui.models.SelectionTool
 import com.fm.products.ui.models.Tools
+import com.fm.products.ui.screens.components.HomeToolbar
 import com.fm.products.ui.theme.PhotoEditorTheme
-import com.fm.products.ui.theme.PurpleGrey80
-import com.fm.products.ui.utils.buttonStateColor
 import com.fm.products.ui.utils.calculateDefaultCircleSelectionPosition
 import com.fm.products.ui.utils.calculateDefaultRectangleSelectionPosition
 import com.fm.products.ui.utils.calculateDrawImageOffset
@@ -64,7 +52,9 @@ import com.fm.products.ui.utils.emptyIntSize
 import com.fm.products.ui.utils.isEmpty
 import com.fm.products.ui.utils.motions.CircleSelectionMotionHandler
 import com.fm.products.ui.utils.motions.MotionHandler
+import com.fm.products.ui.utils.motions.RectangleCropper
 import com.fm.products.ui.utils.motions.RectangleSelectionMotionHandler
+import com.fm.products.ui.utils.saveToDisk
 import com.fm.products.ui.utils.toImageBitmap
 
 @Composable
@@ -138,16 +128,51 @@ private fun ImageEditState(
 
     val image = remember { imageUri.toImageBitmap(context) }
 
+    var outputImage: Bitmap? = remember { null }
+
+    Box {
+        HomeCanvas(
+            selectedTool = selectedTool,
+            image = image,
+            drawOnOutputBitmap = { tools, canvasSize, imageOffset ->
+                when(tools) {
+                    is RectangleSelectionPosition -> {
+                        outputImage = RectangleCropper(tools, image, canvasSize, imageOffset).crop()
+                    }
+                }
+            }
+        )
+
+        ExportButton(
+            selectedTool = selectedTool,
+            onClick = {
+                outputImage?.saveToDisk()?.let {
+                    Toast.makeText(context, "Picture saved", Toast.LENGTH_SHORT).show()
+                }
+            },
+            modifier = Modifier
+                .padding(40.dp)
+                .align(Alignment.BottomCenter),
+        )
+    }
+}
+
+@Composable
+private fun HomeCanvas(
+    selectedTool: Tools,
+    image: ImageBitmap,
+    drawOnOutputBitmap: (SelectionTool, Size, IntOffset) -> Unit,
+) {
     var rectangleSelectionPos by remember { mutableStateOf(RectangleSelectionPosition()) }
 
     var circleSelectionPos by remember { mutableStateOf(CircleSelectionPosition()) }
 
-    var imagePosition : IntOffset by remember { mutableStateOf(emptyIntOffset()) }
+    var imagePosition: IntOffset by remember { mutableStateOf(emptyIntOffset()) }
 
-    var imageSize : IntSize by remember { mutableStateOf(emptyIntSize()) }
+    var imageSize: IntSize by remember { mutableStateOf(emptyIntSize()) }
 
-    val motionHandler : MotionHandler by remember(selectedTool) {
-        val motionHandler = when(selectedTool) {
+    val motionHandler: MotionHandler by remember(selectedTool) {
+        val motionHandler = when (selectedTool) {
             Tools.CircleSelection -> {
                 CircleSelectionMotionHandler(
                     circleSelectionPosition = circleSelectionPos,
@@ -156,6 +181,7 @@ private fun ImageEditState(
                     imageSize = imageSize,
                 )
             }
+
             else -> {
                 RectangleSelectionMotionHandler(
                     rectangleSelectionPosition = rectangleSelectionPos,
@@ -168,7 +194,7 @@ private fun ImageEditState(
         mutableStateOf(motionHandler)
     }
 
-    when(val handler = motionHandler) {
+    when (val handler = motionHandler) {
         is CircleSelectionMotionHandler -> {
             LaunchedEffect(circleSelectionPos, imagePosition, imageSize) {
                 handler.circleSelectionPosition = circleSelectionPos
@@ -176,6 +202,7 @@ private fun ImageEditState(
                 handler.imagePosition = imagePosition
             }
         }
+
         is RectangleSelectionMotionHandler -> {
             LaunchedEffect(rectangleSelectionPos, imagePosition, imageSize) {
                 handler.rectangleSelectionPosition = rectangleSelectionPos
@@ -189,9 +216,7 @@ private fun ImageEditState(
         modifier = Modifier
             .fillMaxSize()
             .padding(4.dp)
-            .pointerInteropFilter {
-                motionHandler.handleMotion(it)
-            },
+            .pointerInteropFilter { motionHandler.handleMotion(it) },
     ) {
 
         val drawSize = calculateDrawImageSize(
@@ -235,80 +260,16 @@ private fun ImageEditState(
 
             Tools.RectangleSelection -> {
                 drawRectangleSelection(rectangleSelectionPos)
+                drawOnOutputBitmap(rectangleSelectionPos, size, drawOffset)
             }
 
             Tools.CircleSelection -> {
                 drawCircleSelection(circleSelectionPos)
+                drawOnOutputBitmap(circleSelectionPos, size, drawOffset)
             }
 
             Tools.None -> {
                 /* no-op */
-            }
-        }
-    }
-
-}
-
-
-@Composable
-private fun HomeToolbar(
-    selectedTool: Tools,
-    onToolsChanged: (Tools) -> Unit,
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .statusBarsPadding()
-            .padding(12.dp),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = PurpleGrey80,
-        )
-    ) {
-        Row(
-            modifier = Modifier.padding(
-                horizontal = 12.dp,
-                vertical = 12.dp
-            ),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            ToolButton(
-                modifier = Modifier,
-                icon = painterResource(R.drawable.ic_lasso_select),
-                isEnable = selectedTool == Tools.LassoSelection,
-                onClick = { onToolsChanged(Tools.LassoSelection) }
-            )
-            Spacer(Modifier.width(12.dp))
-            ToolButton(
-                modifier = Modifier,
-                icon = painterResource(R.drawable.ic_select_square),
-                isEnable = selectedTool == Tools.RectangleSelection,
-                onClick = { onToolsChanged(Tools.RectangleSelection) }
-            )
-            Spacer(Modifier.width(12.dp))
-            ToolButton(
-                modifier = Modifier,
-                icon = painterResource(R.drawable.ic_select_circle),
-                isEnable = selectedTool == Tools.CircleSelection,
-                onClick = { onToolsChanged(Tools.CircleSelection) }
-            )
-
-            Spacer(Modifier.width(12.dp))
-            Button(
-                onClick = { onToolsChanged(Tools.None) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(IntrinsicSize.Max),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = buttonStateColor(selectedTool == Tools.None),
-                ),
-            ) {
-                Text(
-                    text = "None",
-                    color = Color.Black,
-                )
             }
         }
     }

@@ -8,7 +8,7 @@ data class CircleSelectionPosition(
     val center: Offset,
     val radius: Float,
     val activePoint: ActivePoint?,
-) {
+) : SelectionTool {
 
     constructor() : this(center = emptyOffset(), radius = 0f, activePoint = null)
 

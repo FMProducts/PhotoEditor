@@ -16,7 +16,7 @@ data class RectangleSelectionPosition(
     val drawSize: IntSize,
     val drawOffset: IntOffset,
     val activePoint: ActivePoint?,
-) {
+) : SelectionTool {
 
     constructor() : this(
         leftTop = emptyOffset(),
