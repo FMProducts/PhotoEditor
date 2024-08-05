@@ -15,6 +15,7 @@ data class RectangleSelectionPosition(
     val rightBottom: Offset,
     val drawSize: IntSize,
     val drawOffset: IntOffset,
+    val activePoint: ActivePoint?,
 ) {
 
     constructor() : this(
@@ -23,10 +24,14 @@ data class RectangleSelectionPosition(
         rightTop = emptyOffset(),
         rightBottom = emptyOffset(),
         drawSize = emptyIntSize(),
-        drawOffset = emptyIntOffset()
+        drawOffset = emptyIntOffset(),
+        activePoint = null,
     )
 
     fun isEmpty() =
         leftTop.isEmpty() && leftBottom.isEmpty() && rightTop.isEmpty() && rightBottom.isEmpty()
 
+    enum class ActivePoint {
+        LEFT_TOP, RIGHT_TOP, LEFT_BOTTOM, RIGHT_BOTTOM,
+    }
 }

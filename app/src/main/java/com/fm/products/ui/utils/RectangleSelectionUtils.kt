@@ -8,6 +8,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.unit.toSize
 import com.fm.products.ui.models.RectangleSelectionPosition
+import com.fm.products.ui.models.RectangleSelectionPosition.ActivePoint
 
 
 fun calculateDefaultRectangleSelectionPosition(
@@ -15,37 +16,38 @@ fun calculateDefaultRectangleSelectionPosition(
     drawOffset: IntOffset,
 ): RectangleSelectionPosition {
     return RectangleSelectionPosition(
-        leftTop = leftTopCircleOffset(drawOffset),
-        leftBottom = leftBottomCircleOffset(drawOffset, drawSize),
-        rightTop = rightTopCircleOffset(drawOffset, drawSize),
-        rightBottom = rightBottomCircleOffset(drawOffset, drawSize),
+        leftTop = calculateLeftTopPoint(drawOffset),
+        leftBottom = calculateLeftBottomPoint(drawOffset, drawSize),
+        rightTop = calculateRightTopPoint(drawOffset, drawSize),
+        rightBottom = calculateRightBottomPoint(drawOffset, drawSize),
         drawSize = drawSize,
         drawOffset = drawOffset,
+        activePoint = null,
     )
 }
 
-private fun leftTopCircleOffset(drawOffset: IntOffset): Offset {
+fun calculateLeftTopPoint(drawOffset: IntOffset): Offset {
     return Offset(
         drawOffset.x.toFloat() + 10,
         drawOffset.y.toFloat() + 10,
     )
 }
 
-private fun rightTopCircleOffset(drawOffset: IntOffset, drawSize: IntSize): Offset {
+fun calculateRightTopPoint(drawOffset: IntOffset, drawSize: IntSize): Offset {
     return Offset(
         drawOffset.x.toFloat() + drawSize.width - 10,
         drawOffset.y.toFloat() + 10,
     )
 }
 
-private fun leftBottomCircleOffset(drawOffset: IntOffset, drawSize: IntSize): Offset {
+fun calculateLeftBottomPoint(drawOffset: IntOffset, drawSize: IntSize): Offset {
     return Offset(
         drawOffset.x.toFloat() + 10,
         drawOffset.y.toFloat() + drawSize.height - 10,
     )
 }
 
-private fun rightBottomCircleOffset(drawOffset: IntOffset, drawSize: IntSize): Offset {
+fun calculateRightBottomPoint(drawOffset: IntOffset, drawSize: IntSize): Offset {
     return Offset(
         drawOffset.x.toFloat() + drawSize.width - 10,
         drawOffset.y.toFloat() + drawSize.height - 10,
@@ -62,26 +64,26 @@ fun DrawScope.drawRectangleSelection(position: RectangleSelectionPosition) {
     )
 
     drawCircle(
-        color = Color.Magenta,
+        color = pointColor(position.activePoint == ActivePoint.LEFT_TOP),
         radius = 20f,
         center = position.leftTop,
     )
 
 
     drawCircle(
-        color = Color.Magenta,
+        color = pointColor(position.activePoint == ActivePoint.RIGHT_TOP),
         radius = 20f,
         center = position.rightTop
     )
 
     drawCircle(
-        color = Color.Magenta,
+        color = pointColor(position.activePoint == ActivePoint.LEFT_BOTTOM),
         radius = 20f,
         center = position.leftBottom
     )
 
     drawCircle(
-        color = Color.Magenta,
+        color = pointColor(position.activePoint == ActivePoint.RIGHT_BOTTOM),
         radius = 20f,
         center = position.rightBottom,
     )

@@ -64,6 +64,7 @@ import com.fm.products.ui.utils.emptyIntSize
 import com.fm.products.ui.utils.isEmpty
 import com.fm.products.ui.utils.motions.CircleSelectionMotionHandler
 import com.fm.products.ui.utils.motions.MotionHandler
+import com.fm.products.ui.utils.motions.RectangleSelectionMotionHandler
 import com.fm.products.ui.utils.toImageBitmap
 
 @Composable
@@ -83,7 +84,7 @@ private fun HomeScreenContent() {
     )
 
     var selectedTool by remember {
-        mutableStateOf(Tools.CircleSelection)
+        mutableStateOf(Tools.RectangleSelection)
     }
 
 
@@ -145,21 +146,41 @@ private fun ImageEditState(
 
     var imageSize : IntSize by remember { mutableStateOf(emptyIntSize()) }
 
-    val motionHandler : MotionHandler = remember {
-        CircleSelectionMotionHandler(
-            circleSelectionPosition = circleSelectionPos,
-            onUpdateCircleSelectionPosition = { circleSelectionPos = it },
-            imagePosition = imagePosition,
-            imageSize = imageSize,
-        )
+    val motionHandler : MotionHandler by remember(selectedTool) {
+        val motionHandler = when(selectedTool) {
+            Tools.CircleSelection -> {
+                CircleSelectionMotionHandler(
+                    circleSelectionPosition = circleSelectionPos,
+                    onUpdateCircleSelectionPosition = { circleSelectionPos = it },
+                    imagePosition = imagePosition,
+                    imageSize = imageSize,
+                )
+            }
+            else -> {
+                RectangleSelectionMotionHandler(
+                    rectangleSelectionPosition = rectangleSelectionPos,
+                    onUpdateRectangleSelectionPosition = { rectangleSelectionPos = it },
+                    imagePosition = imagePosition,
+                    imageSize = imageSize,
+                )
+            }
+        }
+        mutableStateOf(motionHandler)
     }
 
-    when(motionHandler) {
+    when(val handler = motionHandler) {
         is CircleSelectionMotionHandler -> {
             LaunchedEffect(circleSelectionPos, imagePosition, imageSize) {
-                motionHandler.circleSelectionPosition = circleSelectionPos
-                motionHandler.imageSize = imageSize
-                motionHandler.imagePosition = imagePosition
+                handler.circleSelectionPosition = circleSelectionPos
+                handler.imageSize = imageSize
+                handler.imagePosition = imagePosition
+            }
+        }
+        is RectangleSelectionMotionHandler -> {
+            LaunchedEffect(rectangleSelectionPos, imagePosition, imageSize) {
+                handler.rectangleSelectionPosition = rectangleSelectionPos
+                handler.imageSize = imageSize
+                handler.imagePosition = imagePosition
             }
         }
     }
