@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalComposeUiApi::class)
+
 package com.fm.products.ui.screens
 
 import android.net.Uri
@@ -27,31 +29,41 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.fm.products.R
 import com.fm.products.ui.components.ToolButton
+import com.fm.products.ui.models.CircleSelectionPosition
 import com.fm.products.ui.models.RectangleSelectionPosition
 import com.fm.products.ui.models.Tools
 import com.fm.products.ui.theme.PhotoEditorTheme
 import com.fm.products.ui.theme.PurpleGrey80
 import com.fm.products.ui.utils.buttonStateColor
+import com.fm.products.ui.utils.calculateDefaultCircleSelectionPosition
+import com.fm.products.ui.utils.calculateDefaultRectangleSelectionPosition
 import com.fm.products.ui.utils.calculateDrawImageOffset
 import com.fm.products.ui.utils.calculateDrawImageSize
+import com.fm.products.ui.utils.drawCircleSelection
 import com.fm.products.ui.utils.drawRectangleSelection
-import com.fm.products.ui.utils.leftBottomCircleOffset
-import com.fm.products.ui.utils.leftTopCircleOffset
-import com.fm.products.ui.utils.rightBottomCircleOffset
-import com.fm.products.ui.utils.rightTopCircleOffset
+import com.fm.products.ui.utils.emptyIntOffset
+import com.fm.products.ui.utils.emptyIntSize
+import com.fm.products.ui.utils.isEmpty
+import com.fm.products.ui.utils.motions.CircleSelectionMotionHandler
+import com.fm.products.ui.utils.motions.MotionHandler
 import com.fm.products.ui.utils.toImageBitmap
 
 @Composable
@@ -71,7 +83,7 @@ private fun HomeScreenContent() {
     )
 
     var selectedTool by remember {
-        mutableStateOf(Tools.None)
+        mutableStateOf(Tools.CircleSelection)
     }
 
 
@@ -122,17 +134,43 @@ private fun ImageEditState(
     selectedTool: Tools,
 ) {
     val context = LocalContext.current
-    val image = remember {
-        imageUri.toImageBitmap(context)
+
+    val image = remember { imageUri.toImageBitmap(context) }
+
+    var rectangleSelectionPos by remember { mutableStateOf(RectangleSelectionPosition()) }
+
+    var circleSelectionPos by remember { mutableStateOf(CircleSelectionPosition()) }
+
+    var imagePosition : IntOffset by remember { mutableStateOf(emptyIntOffset()) }
+
+    var imageSize : IntSize by remember { mutableStateOf(emptyIntSize()) }
+
+    val motionHandler : MotionHandler = remember {
+        CircleSelectionMotionHandler(
+            circleSelectionPosition = circleSelectionPos,
+            onUpdateCircleSelectionPosition = { circleSelectionPos = it },
+            imagePosition = imagePosition,
+            imageSize = imageSize,
+        )
     }
-    var rectangleSelectionPos by remember {
-        mutableStateOf(RectangleSelectionPosition())
+
+    when(motionHandler) {
+        is CircleSelectionMotionHandler -> {
+            LaunchedEffect(circleSelectionPos, imagePosition, imageSize) {
+                motionHandler.circleSelectionPosition = circleSelectionPos
+                motionHandler.imageSize = imageSize
+                motionHandler.imagePosition = imagePosition
+            }
+        }
     }
 
     Canvas(
         modifier = Modifier
             .fillMaxSize()
-            .padding(4.dp),
+            .padding(4.dp)
+            .pointerInteropFilter {
+                motionHandler.handleMotion(it)
+            },
     ) {
 
         val drawSize = calculateDrawImageSize(
@@ -147,16 +185,20 @@ private fun ImageEditState(
             canvasHeight = size.height,
             drawImageSize = drawSize
         )
+        if (imagePosition.isEmpty()) {
+            imagePosition = drawOffset
+        }
+
+        if (imageSize.isEmpty()) {
+            imageSize = drawSize
+        }
 
         if (rectangleSelectionPos.isEmpty()) {
-            rectangleSelectionPos = RectangleSelectionPosition(
-                leftTop = leftTopCircleOffset(drawOffset),
-                leftBottom = leftBottomCircleOffset(drawOffset, drawSize),
-                rightTop = rightTopCircleOffset(drawOffset, drawSize),
-                rightBottom = rightBottomCircleOffset(drawOffset, drawSize),
-                drawSize = drawSize,
-                drawOffset = drawOffset,
-            )
+            rectangleSelectionPos = calculateDefaultRectangleSelectionPosition(drawSize, drawOffset)
+        }
+
+        if (circleSelectionPos.isEmpty()) {
+            circleSelectionPos = calculateDefaultCircleSelectionPosition(drawSize, center)
         }
 
         drawImage(
@@ -165,16 +207,19 @@ private fun ImageEditState(
             dstOffset = drawOffset
         )
 
-        when(selectedTool) {
+        when (selectedTool) {
             Tools.LassoSelection -> {
                 /* no-op */
             }
+
             Tools.RectangleSelection -> {
                 drawRectangleSelection(rectangleSelectionPos)
             }
+
             Tools.CircleSelection -> {
-                /* no-op */
+                drawCircleSelection(circleSelectionPos)
             }
+
             Tools.None -> {
                 /* no-op */
             }

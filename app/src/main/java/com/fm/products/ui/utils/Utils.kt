@@ -6,8 +6,11 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 
@@ -53,3 +56,14 @@ fun emptyIntOffset() = IntOffset(0, 0)
 fun emptyIntSize() = IntSize(0, 0)
 
 fun Offset.isEmpty() = x == 0f && y == 0f
+
+fun IntOffset.isEmpty() = x == 0 && y == 0
+
+fun IntSize.isEmpty() = height == 0 && width == 0
+
+fun pointColor(isActive: Boolean) = if (isActive) Color.Blue else Color.Magenta
+
+fun dashStyle(): Stroke {
+    val pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
+    return Stroke(width = 10f, pathEffect = pathEffect)
+}
