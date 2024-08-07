@@ -143,6 +143,14 @@ class LassoSelectionMotionHandler(
 
     private fun drawActionUp(x: Float, y: Float) {
         val points = lassoSelectionState.points.toMutableList()
+
+        if (points.size < MIN_POINTS) {
+            _selectionState.update {
+                it.copy(points = emptyList(), isDraw = false)
+            }
+            return
+        }
+
         val prevPoint = points.lastOrNull() ?: return
 
         if (prevPoint.isLastPoint.not()) {
@@ -152,10 +160,7 @@ class LassoSelectionMotionHandler(
         }
 
         _selectionState.update {
-            it.copy(
-                points = points,
-                isDraw = false,
-            )
+            it.copy(points = points, isDraw = false)
         }
     }
 
@@ -217,5 +222,6 @@ class LassoSelectionMotionHandler(
     companion object {
         private const val MIN_DISTANCE = 10
         private const val LAST_POINT_MIN_DISTANCE = 80
+        private const val MIN_POINTS = 2
     }
 }
