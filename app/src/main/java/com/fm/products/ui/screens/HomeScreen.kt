@@ -19,6 +19,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -59,6 +60,7 @@ import com.fm.products.ui.utils.motions.RectangleSelectionMotionHandler
 import com.fm.products.ui.utils.orFalse
 import com.fm.products.ui.utils.saveToDisk
 import com.fm.products.ui.utils.toImageBitmap
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun HomeScreen() {
@@ -66,28 +68,24 @@ fun HomeScreen() {
 }
 
 @Composable
-private fun HomeScreenContent() {
-    var image: Uri? by remember {
-        mutableStateOf(null)
-    }
+private fun HomeScreenContent(
+    viewModel: HomeViewModel = viewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
 
     val picker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
-        onResult = { image = it }
+        onResult = viewModel::setImageUri
     )
-
-    var selectedTool by remember {
-        mutableStateOf(SelectionTool.None)
-    }
-
 
     Column {
         HomeToolbar(
-            selectedTool = selectedTool,
-            onToolsChanged = { selectedTool = it },
+            selectedTool = uiState.selectionTool,
+            onToolsChanged = viewModel::updateSelectionTool,
         )
 
-        if (image == null) {
+        val uri = uiState.imageUri
+        if (uri == null) {
             SelectImageState(
                 onClickSelectImage = {
                     picker.launch(
@@ -96,12 +94,10 @@ private fun HomeScreenContent() {
                 }
             )
         } else {
-            image?.let {
-                ImageEditState(
-                    imageUri = it,
-                    selectedTool = selectedTool,
-                )
-            }
+            ImageEditState(
+                imageUri = uri,
+                selectedTool = uiState.selectionTool,
+            )
         }
     }
 }
