@@ -20,8 +20,15 @@ class HomeViewModel : ViewModel() {
         _uiState.update { it.copy(selectionTool = tool) }
     }
 
+    fun changeProgressState(isProgress: Boolean) {
+        _uiState.update {
+            it.copy(isProgress = isProgress)
+        }
+    }
+
     data class UiState(
         val imageUri: Uri? = null,
         val selectionTool: SelectionTool = SelectionTool.None,
+        var isProgress: Boolean = false,
     )
 }
