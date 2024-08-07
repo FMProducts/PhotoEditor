@@ -11,6 +11,7 @@ import com.fm.products.ui.models.RectangleSelectionState
 import com.fm.products.ui.models.SelectionState
 import com.fm.products.ui.utils.cropper.CircleCropper
 import com.fm.products.ui.utils.cropper.ImageCropper
+import com.fm.products.ui.utils.cropper.LassoCropper
 import com.fm.products.ui.utils.cropper.RectangleCropper
 
 
@@ -55,8 +56,12 @@ fun ImageBitmap.cropByState(
         }
 
         is LassoSelectionState -> {
-            // TODO
-            null
+            LassoCropper(
+                lassoSelectionState = selectionState,
+                image = this,
+                canvasSize = canvasSize,
+                imageOffset = imagePosition,
+            )
         }
 
         else -> {

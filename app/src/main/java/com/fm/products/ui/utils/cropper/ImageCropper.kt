@@ -4,5 +4,5 @@ import android.graphics.Bitmap
 
 interface ImageCropper {
 
-    fun crop(): Bitmap
+    fun crop(): Bitmap?
 }

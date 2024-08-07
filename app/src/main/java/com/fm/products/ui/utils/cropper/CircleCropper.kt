@@ -21,7 +21,9 @@ class CircleCropper(
     private val imageOffset: IntOffset,
 ) : ImageCropper {
 
-    override fun crop(): Bitmap {
+    override fun crop(): Bitmap? {
+        if (circleSelectionState.isEmpty()) return null
+
         val srcBitmap = image.asAndroidBitmap().copy(Bitmap.Config.ARGB_8888, false)
 
         val scaleFactor = getScaleFactor(srcBitmap)
