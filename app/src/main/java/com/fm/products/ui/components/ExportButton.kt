@@ -21,7 +21,7 @@ fun ExportButton(
 ) {
 
     val verticalOffset by animateDpAsState(
-        targetValue = if (selectedTool == SelectionTool.None) 60.dp else 0.dp,
+        targetValue = if (selectedTool == SelectionTool.None) 120.dp else 0.dp,
         label = "Export Button Animation"
     )
 

@@ -45,6 +45,7 @@ import com.fm.products.ui.utils.calculateDefaultRectangleSelectionPosition
 import com.fm.products.ui.utils.calculateDrawImageOffset
 import com.fm.products.ui.utils.calculateDrawImageSize
 import com.fm.products.ui.utils.createMotionHandler
+import com.fm.products.ui.utils.cropper.CircleCropper
 import com.fm.products.ui.utils.cropper.RectangleCropper
 import com.fm.products.ui.utils.drawCircleSelection
 import com.fm.products.ui.utils.drawRectangleSelection
@@ -76,7 +77,7 @@ private fun HomeScreenContent() {
     )
 
     var selectedTool by remember {
-        mutableStateOf(SelectionTool.RectangleSelection)
+        mutableStateOf(SelectionTool.None)
     }
 
 
@@ -165,7 +166,7 @@ private fun HomeCanvas(
             circleSelectionState = circleSelectionState,
             onUpdateCircleSelectionState = { circleSelectionState = it },
             rectangleSelectionState = rectangleSelectionState,
-            onUpdateRectangleSelectionState = { rectangleSelectionState = it  },
+            onUpdateRectangleSelectionState = { rectangleSelectionState = it },
             imageSize = imageSize,
             imagePosition = imagePosition,
         )
@@ -191,7 +192,11 @@ private fun HomeCanvas(
         modifier = Modifier
             .fillMaxSize()
             .padding(4.dp)
-            .pointerInteropFilter { motionHandler?.handleMotion(it).orFalse() },
+            .pointerInteropFilter {
+                motionHandler
+                    ?.handleMotion(it)
+                    .orFalse()
+            },
     ) {
 
 
@@ -259,7 +264,13 @@ private fun HomeCanvas(
                 }
 
                 SelectionTool.CircleSelection -> {
-                    /* no-op */
+                    val bitmap = CircleCropper(
+                        circleSelectionState = circleSelectionState,
+                        image = image,
+                        canvasSize = canvasSize,
+                        imageOffset = imagePosition
+                    ).crop()
+                    drawOnOutputBitmap(bitmap)
                 }
 
                 SelectionTool.None -> {
