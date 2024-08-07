@@ -14,6 +14,8 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 fun Uri.toImageBitmap(context: Context): ImageBitmap {
     val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -73,4 +75,8 @@ fun pointColor(isActive: Boolean) = if (isActive) Color.Blue else Color.Magenta
 fun dashStyle(): Stroke {
     val pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
     return Stroke(width = 10f, pathEffect = pathEffect)
+}
+
+fun calculateDistanceBetweenPoints(x: Float, y: Float, x2: Float, y2: Float): Float {
+    return sqrt((x - x2).pow(2) + (y - y2).pow(2))
 }

@@ -8,6 +8,7 @@ import com.fm.products.ui.models.LassoSelectionState
 import com.fm.products.ui.models.LassoSelectionState.Point
 import com.fm.products.ui.models.LassoSelectionState.PointDirection
 import com.fm.products.ui.utils.calculateDirection
+import com.fm.products.ui.utils.calculateDistanceBetweenPoints
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -109,8 +110,11 @@ class LassoSelectionMotionHandler(
         val points = lassoSelectionState.points.toMutableList()
         val prevPoint = points.lastOrNull() ?: return
 
+        if (prevPoint.isLastPoint) return
+
         val newPointDirection = calculateDirection(x, y, prevPoint)
-        val newPoint = Point(x, y, newPointDirection)
+        val isLastPoint = isLastPoint(x, y)
+        val newPoint = Point(x, y, newPointDirection, isLastPoint)
         points.add(newPoint)
 
         if (checkMinDistance(prevPoint, newPoint)) {
@@ -133,7 +137,7 @@ class LassoSelectionMotionHandler(
     private fun moveActionUp() {
         pressDownPoint = null
         _selectionState.update {
-            it.copy(isMove = true)
+            it.copy(isMove = false)
         }
     }
 
@@ -141,9 +145,11 @@ class LassoSelectionMotionHandler(
         val points = lassoSelectionState.points.toMutableList()
         val prevPoint = points.lastOrNull() ?: return
 
-        val newPointDirection = calculateDirection(x, y, prevPoint)
-        val lastPoint = Point(x, y, newPointDirection)
-        points.add(lastPoint)
+        if (prevPoint.isLastPoint.not()) {
+            val newPointDirection = calculateDirection(x, y, prevPoint)
+            val lastPoint = Point(x, y, newPointDirection)
+            points.add(lastPoint)
+        }
 
         _selectionState.update {
             it.copy(
@@ -194,6 +200,15 @@ class LassoSelectionMotionHandler(
         )
     }
 
+    private fun isLastPoint(x: Float, y: Float): Boolean {
+        if (lassoSelectionState.points.size < 10) return false
+
+        val firstPoint = lassoSelectionState.points.firstOrNull() ?: return false
+        val distance = calculateDistanceBetweenPoints(x, y, firstPoint.x, firstPoint.y)
+        return if (distance < LAST_POINT_MIN_DISTANCE) true else false
+    }
+
+
     private data class PressDownPoint(
         val horizontalDistance: Float,
         val verticalDistance: Float,
@@ -201,5 +216,6 @@ class LassoSelectionMotionHandler(
 
     companion object {
         private const val MIN_DISTANCE = 10
+        private const val LAST_POINT_MIN_DISTANCE = 80
     }
 }

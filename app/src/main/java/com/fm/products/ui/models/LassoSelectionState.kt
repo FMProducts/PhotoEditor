@@ -17,6 +17,7 @@ data class LassoSelectionState(
         val x: Float,
         val y: Float,
         val direction: PointDirection, // direction relative to previous point
+        val isLastPoint: Boolean = false, // the last point that closes the shape
     )
 
     enum class PointDirection {

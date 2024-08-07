@@ -30,7 +30,7 @@ fun DrawScope.drawLassoSelection(position: LassoSelectionState) {
         prevPoint = p
     }
 
-    if (position.isDraw.not()) {
+    if (position.isDraw.not() || prevPoint.isLastPoint) {
         path.lineTo(firstPoint.x, firstPoint.y)
         pointsToDraw.add(prevPoint)
     }
