@@ -10,17 +10,25 @@ import com.fm.products.ui.utils.calculateBottomPoint
 import com.fm.products.ui.utils.calculateLeftPoint
 import com.fm.products.ui.utils.calculateRightPoint
 import com.fm.products.ui.utils.calculateTopPoint
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlin.math.abs
 
 class CircleSelectionMotionHandler(
-    var circleSelectionState: CircleSelectionState,
+    circleSelectionState: CircleSelectionState,
     var imagePosition: IntOffset,
     var imageSize: IntSize,
-    val onUpdateCircleSelectionState: (CircleSelectionState) -> Unit,
-) : MotionHandler<CircleSelectionState> {
+) : MotionHandler {
+
 
     private var isCanMoveOutsideImage: Boolean = true
     private var pressDownPoint: PressDownPoint? = null
+
+    private val _selectionState = MutableStateFlow(circleSelectionState)
+    override val selectionState = _selectionState.asStateFlow()
+    private val circleSelectionState: CircleSelectionState
+        get() = _selectionState.value
 
     override fun handleMotion(event: MotionEvent): Boolean {
         return when (event.action) {
@@ -44,57 +52,55 @@ class CircleSelectionMotionHandler(
         }
     }
 
-    override fun update(state: CircleSelectionState, imageSize: IntSize, imagePosition: IntOffset) {
+    override fun update(imageSize: IntSize, imagePosition: IntOffset) {
         this.imageSize = imageSize
         this.imagePosition = imagePosition
-        this.circleSelectionState = state
     }
 
     private fun circleSelectionHandleActionDown(x: Float, y: Float) {
         when {
             // tap on top circle
             isInOffset(x, y, calculateTopPoint(circleSelectionState)) -> {
-                onUpdateCircleSelectionState(
-                    circleSelectionState.copy(activePoint = ActivePoint.TOP)
-                )
+                _selectionState.update {
+                    it.copy(activePoint = ActivePoint.TOP)
+                }
             }
             // tap on bottom circle
             isInOffset(x, y, calculateBottomPoint(circleSelectionState)) -> {
-                onUpdateCircleSelectionState(
-                    circleSelectionState.copy(activePoint = ActivePoint.BOTTOM)
-                )
+                _selectionState.update {
+                    it.copy(activePoint = ActivePoint.BOTTOM)
+                }
             }
             // tap on right circle
             isInOffset(x, y, calculateRightPoint(circleSelectionState)) -> {
-                onUpdateCircleSelectionState(
-                    circleSelectionState.copy(activePoint = ActivePoint.RIGHT)
-                )
+                _selectionState.update {
+                    it.copy(activePoint = ActivePoint.RIGHT)
+                }
             }
             // tap on left circle
             isInOffset(x, y, calculateLeftPoint(circleSelectionState)) -> {
-                onUpdateCircleSelectionState(
-                    circleSelectionState.copy(activePoint = ActivePoint.LEFT)
-                )
+                _selectionState.update {
+                    it.copy(activePoint = ActivePoint.LEFT)
+                }
             }
             // tap in circle selection
             isInCircleSelection(x, y) -> {
                 pressDownPoint = calculatePressDownPoint(x, y)
-                onUpdateCircleSelectionState(
-                    circleSelectionState.copy(activePoint = null)
-                )
+                _selectionState.update {
+                    it.copy(activePoint = null)
+                }
             }
         }
     }
 
     private fun circleSelectionHandleActionUp() {
         pressDownPoint = null
-        onUpdateCircleSelectionState(
-            circleSelectionState.copy(activePoint = null)
-        )
+        _selectionState.update {
+            it.copy(activePoint = null)
+        }
     }
 
     private fun circleSelectionHandleActionMove(x: Float, y: Float) {
-
         when (circleSelectionState.activePoint) {
             ActivePoint.TOP -> {
                 moveVerticalPoint(y)
@@ -123,7 +129,7 @@ class CircleSelectionMotionHandler(
 
         val newCircleSelectionPosition = circleSelectionState.copy(radius = newRadius)
         if (newRadius >= MIN_RADIUS && checkIsNotMoveOutside(newCircleSelectionPosition)) {
-            onUpdateCircleSelectionState(newCircleSelectionPosition)
+            _selectionState.update { newCircleSelectionPosition }
         }
     }
 
@@ -132,7 +138,7 @@ class CircleSelectionMotionHandler(
 
         val newCircleSelectionPosition = circleSelectionState.copy(radius = newRadius)
         if (newRadius >= MIN_RADIUS && checkIsNotMoveOutside(newCircleSelectionPosition)) {
-            onUpdateCircleSelectionState(newCircleSelectionPosition)
+            _selectionState.update { newCircleSelectionPosition }
         }
     }
 
@@ -141,16 +147,14 @@ class CircleSelectionMotionHandler(
         val horizontalDistance = x - circleSelectionState.center.x
         val verticalDistance = y - circleSelectionState.center.y
         val dragLengthX = (horizontalDistance - downPoint.horizontalDistance).toInt()
-        val dragLengthY = (verticalDistance- downPoint.verticalDistance).toInt()
+        val dragLengthY = (verticalDistance - downPoint.verticalDistance).toInt()
         val newCenterX = circleSelectionState.center.x + dragLengthX
         val newCenterY = circleSelectionState.center.y + dragLengthY
 
         if (checkIsNotMoveOutside(newCenterX, newCenterY)) {
-            onUpdateCircleSelectionState(
-                circleSelectionState.copy(
-                    center = Offset(newCenterX, newCenterY)
-                )
-            )
+            _selectionState.update {
+                it.copy(center = Offset(newCenterX, newCenterY))
+            }
         }
     }
 

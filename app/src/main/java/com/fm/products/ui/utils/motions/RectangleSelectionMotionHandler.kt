@@ -10,16 +10,24 @@ import com.fm.products.ui.utils.calculateLeftBottomPoint
 import com.fm.products.ui.utils.calculateLeftTopPoint
 import com.fm.products.ui.utils.calculateRightBottomPoint
 import com.fm.products.ui.utils.calculateRightTopPoint
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 class RectangleSelectionMotionHandler(
-    var rectangleSelectionState: RectangleSelectionState,
-    val onUpdateRectangleSelectionState: (RectangleSelectionState) -> Unit,
+    rectangleSelectionState: RectangleSelectionState,
     var imagePosition: IntOffset,
     var imageSize: IntSize,
-) : MotionHandler<RectangleSelectionState> {
+) : MotionHandler {
 
     private var isCanMoveOutsideImage: Boolean = true
     private var pressDownPoint: PressDownPoint? = null
+
+    private val _selectionState = MutableStateFlow(rectangleSelectionState)
+    override val selectionState = _selectionState.asStateFlow()
+
+    private val rectangleSelectionState: RectangleSelectionState
+        get() = _selectionState.value
 
     override fun handleMotion(event: MotionEvent): Boolean {
         return when (event.action) {
@@ -43,13 +51,11 @@ class RectangleSelectionMotionHandler(
     }
 
     override fun update(
-        state: RectangleSelectionState,
         imageSize: IntSize,
         imagePosition: IntOffset
     ) {
         this.imageSize = imageSize
         this.imagePosition = imagePosition
-        this.rectangleSelectionState = state
     }
 
     private fun rectangleSelectionHandleActionDown(x: Float, y: Float) {
@@ -59,34 +65,34 @@ class RectangleSelectionMotionHandler(
         when {
             // tap on left top Point
             isInOffset(x, y, calculateLeftTopPoint(recImagePosition)) -> {
-                onUpdateRectangleSelectionState(
-                    rectangleSelectionState.copy(activePoint = ActivePoint.LEFT_TOP)
-                )
+                _selectionState.update {
+                    it.copy(activePoint = ActivePoint.LEFT_TOP)
+                }
             }
             // tap on right top Point
             isInOffset(x, y, calculateRightTopPoint(recImagePosition, recImageSize)) -> {
-                onUpdateRectangleSelectionState(
-                    rectangleSelectionState.copy(activePoint = ActivePoint.RIGHT_TOP)
-                )
+                _selectionState.update {
+                    it.copy(activePoint = ActivePoint.RIGHT_TOP)
+                }
             }
             // tap on left bottom Point
             isInOffset(x, y, calculateLeftBottomPoint(recImagePosition, recImageSize)) -> {
-                onUpdateRectangleSelectionState(
-                    rectangleSelectionState.copy(activePoint = ActivePoint.LEFT_BOTTOM)
-                )
+                _selectionState.update {
+                    it.copy(activePoint = ActivePoint.LEFT_BOTTOM)
+                }
             }
             // tap on right bottom Point
             isInOffset(x, y, calculateRightBottomPoint(recImagePosition, recImageSize)) -> {
-                onUpdateRectangleSelectionState(
-                    rectangleSelectionState.copy(activePoint = ActivePoint.RIGHT_BOTTOM)
-                )
+                _selectionState.update {
+                    it.copy(activePoint = ActivePoint.RIGHT_BOTTOM)
+                }
             }
             // tap in rectangle selection
             isInRectangleSelection(x, y) -> {
                 pressDownPoint = calculatePressDownPoint(x, y)
-                onUpdateRectangleSelectionState(
-                    rectangleSelectionState.copy(activePoint = null)
-                )
+                _selectionState.update {
+                    it.copy(activePoint = null)
+                }
             }
         }
     }
@@ -94,9 +100,9 @@ class RectangleSelectionMotionHandler(
     private fun rectangleSelectionHandleActionUp() {
         pressDownPoint = null
 
-        onUpdateRectangleSelectionState(
-            rectangleSelectionState.copy(activePoint = null)
-        )
+        _selectionState.update {
+            it.copy(activePoint = null)
+        }
     }
 
     private fun rectangleSelectionHandleActionMove(x: Float, y: Float) {
@@ -154,7 +160,7 @@ class RectangleSelectionMotionHandler(
         )
 
         if (checkIsNotMoveOutside(newRectangleSelectionPosition)) {
-            onUpdateRectangleSelectionState(newRectangleSelectionPosition)
+            _selectionState.update { newRectangleSelectionPosition }
         }
     }
 
@@ -172,7 +178,7 @@ class RectangleSelectionMotionHandler(
         )
 
         if (checkIsNotMoveOutside(newRectangleSelectionPosition)) {
-            onUpdateRectangleSelectionState(newRectangleSelectionPosition)
+            _selectionState.update { newRectangleSelectionPosition }
         }
     }
 
@@ -193,7 +199,7 @@ class RectangleSelectionMotionHandler(
         )
 
         if (checkIsNotMoveOutside(newRectangleSelectionPosition)) {
-            onUpdateRectangleSelectionState(newRectangleSelectionPosition)
+            _selectionState.update { newRectangleSelectionPosition }
         }
     }
 
@@ -216,7 +222,7 @@ class RectangleSelectionMotionHandler(
 
 
         if (checkIsNotMoveOutside(newRectangleSelectionPosition)) {
-            onUpdateRectangleSelectionState(newRectangleSelectionPosition)
+            _selectionState.update { newRectangleSelectionPosition }
         }
     }
 
@@ -237,7 +243,7 @@ class RectangleSelectionMotionHandler(
         )
 
         if (checkIsNotMoveOutside(newRectangleSelectionPosition)) {
-            onUpdateRectangleSelectionState(newRectangleSelectionPosition)
+            _selectionState.update { newRectangleSelectionPosition }
         }
     }
 

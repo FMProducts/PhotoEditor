@@ -15,13 +15,13 @@ import com.fm.products.ui.models.SelectionTool
 
 @Composable
 fun ExportButton(
-    selectedTool: SelectionTool,
+    isVisible: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
 
     val verticalOffset by animateDpAsState(
-        targetValue = if (selectedTool == SelectionTool.None) 120.dp else 0.dp,
+        targetValue = if (isVisible) 0.dp else 120.dp,
         label = "Export Button Animation"
     )
 

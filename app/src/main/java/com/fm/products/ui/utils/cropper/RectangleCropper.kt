@@ -16,9 +16,9 @@ class RectangleCropper(
     private val image: ImageBitmap,
     private val canvasSize: Size,
     private val imageOffset: IntOffset,
-) {
+) : ImageCropper {
 
-    fun crop(): Bitmap {
+    override fun crop(): Bitmap {
         val srcBitmap = image.asAndroidBitmap().copy(Bitmap.Config.ARGB_8888, false)
 
         val scaleFactor = getScaleFactor(srcBitmap)

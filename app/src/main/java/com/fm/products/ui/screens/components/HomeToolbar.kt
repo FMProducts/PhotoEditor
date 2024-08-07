@@ -50,12 +50,12 @@ fun HomeToolbar(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-//            ToolButton( TODO()
-//                modifier = Modifier,
-//                icon = painterResource(R.drawable.ic_lasso_select),
-//                isEnable = selectedTool == Tools.LassoSelection,
-//                onClick = { onToolsChanged(Tools.LassoSelection) }
-//            )
+            ToolButton(
+                modifier = Modifier,
+                icon = painterResource(R.drawable.ic_lasso_select),
+                isEnable = selectedTool == SelectionTool.LassoSelection,
+                onClick = { onToolsChanged(SelectionTool.LassoSelection) }
+            )
             Spacer(Modifier.width(12.dp))
             ToolButton(
                 modifier = Modifier,

@@ -53,7 +53,9 @@ fun calculateDrawImageOffset(
 }
 
 fun emptyOffset() = Offset(0f, 0f)
+
 fun emptyIntOffset() = IntOffset(0, 0)
+
 fun emptyIntSize() = IntSize(0, 0)
 
 fun emptySize() = Size(0f, 0f)

@@ -1,43 +1,56 @@
 package com.fm.products.ui.utils
 
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import com.fm.products.ui.models.CircleSelectionState
-import com.fm.products.ui.models.RectangleSelectionState
+import com.fm.products.ui.models.LassoSelectionState
 import com.fm.products.ui.models.SelectionTool
 import com.fm.products.ui.utils.motions.CircleSelectionMotionHandler
+import com.fm.products.ui.utils.motions.EmptyMotionHandler
+import com.fm.products.ui.utils.motions.LassoSelectionMotionHandler
 import com.fm.products.ui.utils.motions.MotionHandler
 import com.fm.products.ui.utils.motions.RectangleSelectionMotionHandler
 
 
 fun createMotionHandler(
     selectionTool: SelectionTool,
-    circleSelectionState: CircleSelectionState,
-    onUpdateCircleSelectionState: (CircleSelectionState) -> Unit,
-    rectangleSelectionState: RectangleSelectionState,
-    onUpdateRectangleSelectionState: (RectangleSelectionState) -> Unit,
     imageSize: IntSize,
     imagePosition: IntOffset,
-): MotionHandler<*>? {
-    return when(selectionTool) {
+    canvasCenter: Offset,
+): MotionHandler {
+    return when (selectionTool) {
         SelectionTool.RectangleSelection -> {
             RectangleSelectionMotionHandler(
-                rectangleSelectionState = rectangleSelectionState,
-                onUpdateRectangleSelectionState = onUpdateRectangleSelectionState,
+                rectangleSelectionState = calculateDefaultRectangleSelectionPosition(
+                    drawSize = imageSize,
+                    drawOffset = imagePosition
+                ),
                 imagePosition = imagePosition,
                 imageSize = imageSize,
             )
         }
+
         SelectionTool.CircleSelection -> {
             CircleSelectionMotionHandler(
-                circleSelectionState = circleSelectionState,
-                onUpdateCircleSelectionState = onUpdateCircleSelectionState,
+                circleSelectionState = calculateDefaultCircleSelectionPosition(
+                    drawSize = imageSize,
+                    center = canvasCenter
+                ),
                 imagePosition = imagePosition,
                 imageSize = imageSize,
             )
         }
+
+        SelectionTool.LassoSelection -> {
+            LassoSelectionMotionHandler(
+                lassoSelectionState = LassoSelectionState(),
+                imagePosition = imagePosition,
+                imageSize = imageSize
+            )
+        }
+
         SelectionTool.None -> {
-            null
+            EmptyMotionHandler()
         }
     }
 }
