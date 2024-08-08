@@ -1,8 +1,11 @@
 package com.fm.products.ui.utils
 
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.center
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import com.fm.products.ui.utils.motions.MagneticLassoSelectionMotionHandler
 import com.fm.products.ui.models.LassoSelectionState
 import com.fm.products.ui.models.SelectionTool
 import com.fm.products.ui.utils.motions.CircleSelectionMotionHandler
@@ -16,7 +19,8 @@ fun createMotionHandler(
     selectionTool: SelectionTool,
     imageSize: IntSize,
     imagePosition: IntOffset,
-    canvasCenter: Offset,
+    canvasSize: Size,
+    sourceImage: ImageBitmap,
 ): MotionHandler {
     return when (selectionTool) {
         SelectionTool.RectangleSelection -> {
@@ -34,7 +38,7 @@ fun createMotionHandler(
             CircleSelectionMotionHandler(
                 circleSelectionState = calculateDefaultCircleSelectionPosition(
                     drawSize = imageSize,
-                    center = canvasCenter
+                    center = canvasSize.center
                 ),
                 imagePosition = imagePosition,
                 imageSize = imageSize,
@@ -46,6 +50,16 @@ fun createMotionHandler(
                 lassoSelectionState = LassoSelectionState(),
                 imagePosition = imagePosition,
                 imageSize = imageSize
+            )
+        }
+
+        SelectionTool.MagneticLassoSelection -> {
+            MagneticLassoSelectionMotionHandler(
+                lassoSelectionState = LassoSelectionState(),
+                imagePosition = imagePosition,
+                imageSize = imageSize,
+                canvasSize = canvasSize,
+                sourceImage = sourceImage,
             )
         }
 

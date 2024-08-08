@@ -52,6 +52,13 @@ fun HomeToolbar(
         ) {
             ToolButton(
                 modifier = Modifier,
+                icon = painterResource(R.drawable.ic_magnetic_lasso_select),
+                isEnable = selectedTool == SelectionTool.MagneticLassoSelection,
+                onClick = { onToolsChanged(SelectionTool.MagneticLassoSelection) }
+            )
+            Spacer(Modifier.width(12.dp))
+            ToolButton(
+                modifier = Modifier,
                 icon = painterResource(R.drawable.ic_lasso_select),
                 isEnable = selectedTool == SelectionTool.LassoSelection,
                 onClick = { onToolsChanged(SelectionTool.LassoSelection) }

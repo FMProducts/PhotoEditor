@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlin.math.abs
 
-class LassoSelectionMotionHandler(
+open class LassoSelectionMotionHandler(
     lassoSelectionState: LassoSelectionState,
     var imagePosition: IntOffset,
     var imageSize: IntSize,
@@ -141,7 +141,7 @@ class LassoSelectionMotionHandler(
         }
     }
 
-    private fun drawActionUp(x: Float, y: Float) {
+    protected open fun drawActionUp(x: Float, y: Float) {
         val points = lassoSelectionState.points.toMutableList()
 
         if (points.size < MIN_POINTS) {

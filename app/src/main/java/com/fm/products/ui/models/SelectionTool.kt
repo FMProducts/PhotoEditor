@@ -4,5 +4,6 @@ enum class SelectionTool {
     RectangleSelection,
     CircleSelection,
     LassoSelection,
+    MagneticLassoSelection,
     None,
 }

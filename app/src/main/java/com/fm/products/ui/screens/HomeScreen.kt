@@ -33,7 +33,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.geometry.center
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInteropFilter
@@ -43,6 +42,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.fm.products.ui.utils.motions.MagneticLassoSelectionMotionHandler
 import com.fm.products.ui.components.ExportButton
 import com.fm.products.ui.models.SelectionState
 import com.fm.products.ui.models.SelectionTool
@@ -181,7 +181,8 @@ private fun HomeCanvas(
             selectionTool = selectedTool,
             imageSize = imageSize,
             imagePosition = imagePosition,
-            canvasCenter = canvasSize.center,
+            canvasSize = canvasSize,
+            sourceImage = image,
         )
         mutableStateOf(motionHandler)
     }
@@ -190,6 +191,14 @@ private fun HomeCanvas(
 
     LaunchedEffect(imagePosition, imageSize) {
         motionHandler.update(imageSize, imagePosition)
+    }
+
+    LaunchedEffect(motionHandler) {
+        when (val handler = motionHandler) {
+            is MagneticLassoSelectionMotionHandler -> {
+                handler.changeProgressBarState = changeProgressState
+            }
+        }
     }
 
     Canvas(
