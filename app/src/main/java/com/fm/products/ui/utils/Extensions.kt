@@ -13,6 +13,7 @@ import com.fm.products.ui.utils.cropper.CircleCropper
 import com.fm.products.ui.utils.cropper.ImageCropper
 import com.fm.products.ui.utils.cropper.LassoCropper
 import com.fm.products.ui.utils.cropper.RectangleCropper
+import com.fm.products.ui.utils.selections.drawLassoSelection
 
 
 fun DrawScope.drawSelectionByState(selectionState: SelectionState) {

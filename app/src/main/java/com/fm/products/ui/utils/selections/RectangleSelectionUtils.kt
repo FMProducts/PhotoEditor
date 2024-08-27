@@ -20,8 +20,8 @@ fun calculateDefaultRectangleSelectionPosition(
         leftBottom = calculateLeftBottomPoint(drawOffset, drawSize),
         rightTop = calculateRightTopPoint(drawOffset, drawSize),
         rightBottom = calculateRightBottomPoint(drawOffset, drawSize),
-        drawSize = drawSize,
-        drawOffset = drawOffset,
+        imageSize = drawSize,
+        imageOffset = drawOffset,
         activePoint = null,
     )
 }
@@ -58,9 +58,9 @@ fun DrawScope.drawRectangleSelection(position: RectangleSelectionState) {
 
     drawRect(
         color = Color.LightGray,
-        topLeft = position.drawOffset.toOffset(),
+        topLeft = position.imageOffset.toOffset(),
         style = dashStyle(),
-        size = position.drawSize.toSize()
+        size = position.imageSize.toSize()
     )
 
     drawCircle(

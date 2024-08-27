@@ -7,7 +7,7 @@ import androidx.compose.ui.unit.IntSize
 import com.fm.products.ui.models.LassoSelectionState
 import com.fm.products.ui.models.LassoSelectionState.Point
 import com.fm.products.ui.models.LassoSelectionState.PointDirection
-import com.fm.products.ui.utils.calculateDirection
+import com.fm.products.ui.utils.selections.calculateDirection
 import com.fm.products.ui.utils.calculateDistanceBetweenPoints
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,7 +22,8 @@ open class LassoSelectionMotionHandler(
 
     private var pressDownPoint: PressDownPoint? = null
 
-    private val _selectionState = MutableStateFlow(lassoSelectionState)
+    @Suppress("PropertyName")
+    protected val _selectionState = MutableStateFlow(lassoSelectionState)
     override val selectionState = _selectionState.asStateFlow()
 
     private val lassoSelectionState: LassoSelectionState

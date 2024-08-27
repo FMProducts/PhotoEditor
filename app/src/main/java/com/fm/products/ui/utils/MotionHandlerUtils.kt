@@ -1,5 +1,6 @@
 package com.fm.products.ui.utils
 
+import android.content.Context
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.center
 import androidx.compose.ui.graphics.ImageBitmap
@@ -13,6 +14,7 @@ import com.fm.products.ui.utils.motions.EmptyMotionHandler
 import com.fm.products.ui.utils.motions.LassoSelectionMotionHandler
 import com.fm.products.ui.utils.motions.MotionHandler
 import com.fm.products.ui.utils.motions.RectangleSelectionMotionHandler
+import kotlinx.coroutines.CoroutineScope
 
 
 fun createMotionHandler(
@@ -21,6 +23,8 @@ fun createMotionHandler(
     imagePosition: IntOffset,
     canvasSize: Size,
     sourceImage: ImageBitmap,
+    coroutineScope: CoroutineScope,
+    context: Context,
 ): MotionHandler {
     return when (selectionTool) {
         SelectionTool.RectangleSelection -> {
@@ -60,6 +64,8 @@ fun createMotionHandler(
                 imageSize = imageSize,
                 canvasSize = canvasSize,
                 sourceImage = sourceImage,
+                coroutineScope = coroutineScope,
+                context = context,
             )
         }
 

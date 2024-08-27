@@ -13,8 +13,8 @@ data class RectangleSelectionState(
     val leftBottom: Offset,
     val rightTop: Offset,
     val rightBottom: Offset,
-    val drawSize: IntSize,
-    val drawOffset: IntOffset,
+    val imageSize: IntSize,
+    val imageOffset: IntOffset,
     val activePoint: ActivePoint?,
 ) : SelectionState {
 
@@ -23,8 +23,8 @@ data class RectangleSelectionState(
         leftBottom = emptyOffset(),
         rightTop = emptyOffset(),
         rightBottom = emptyOffset(),
-        drawSize = emptyIntSize(),
-        drawOffset = emptyIntOffset(),
+        imageSize = emptyIntSize(),
+        imageOffset = emptyIntOffset(),
         activePoint = null,
     )
 

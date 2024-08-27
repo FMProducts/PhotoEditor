@@ -34,8 +34,8 @@ class RectangleCropper(
             srcBitmap.asImageBitmap(),
             paint = paint,
             srcOffset = IntOffset(
-                (rectangleSelectionState.drawOffset.x * scaleFactor).toInt(),
-                ((rectangleSelectionState.drawOffset.y - imageOffset.y) * scaleFactor).toInt()
+                (rectangleSelectionState.imageOffset.x * scaleFactor).toInt(),
+                ((rectangleSelectionState.imageOffset.y - imageOffset.y) * scaleFactor).toInt()
             )
         )
 
@@ -43,10 +43,9 @@ class RectangleCropper(
     }
 
     private fun calculateSelectionSizeInPx(scaleFactor: Float): IntSize {
-        return IntSize(
-            (rectangleSelectionState.drawSize.width * scaleFactor).toInt(),
-            (rectangleSelectionState.drawSize.height * scaleFactor).toInt(),
-        )
+        val width = rectangleSelectionState.imageSize.width * scaleFactor
+        val height = rectangleSelectionState.imageSize.height * scaleFactor
+        return IntSize(width.toInt(), height.toInt())
     }
 
     private fun getScaleFactor(srcBitmap: Bitmap): Float {

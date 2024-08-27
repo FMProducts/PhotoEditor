@@ -47,11 +47,26 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+//    sourceSets {
+//        main {
+//            // The libs directory contains prebuilt libraries that are used by the
+//            // app's library defined in CMakeLists.txt via an IMPORTED target.
+//            jniLibs.srcDirs = ['libs']
+//        }
+//    }
+
+    packaging {
+        jniLibs.pickFirsts.add("lib/x86/libc++_shared.so")
+        jniLibs.pickFirsts.add("lib/x86_64/libc++_shared.so")
+        jniLibs.pickFirsts.add("lib/armeabi-v7a/libc++_shared.so")
+        jniLibs.pickFirsts.add("lib/arm64-v8a/libc++_shared.so")
+    }
 }
 
 dependencies {
     implementation(project(":opencv"))
 
+    implementation(libs.removeBg)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

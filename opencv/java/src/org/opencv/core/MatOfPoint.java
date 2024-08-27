@@ -30,7 +30,7 @@ public class MatOfPoint extends Mat {
         //FIXME: do we need release() here?
     }
 
-    public MatOfPoint(Point...a) {
+    public MatOfPoint(Point... a) {
         super();
         fromArray(a);
     }
@@ -40,7 +40,7 @@ public class MatOfPoint extends Mat {
             super.create(elemNumber, 1, CvType.makeType(_depth, _channels));
     }
 
-    public void fromArray(Point...a) {
+    public void fromArray(Point[] a) {
         if(a==null || a.length==0)
             return;
         int num = a.length;

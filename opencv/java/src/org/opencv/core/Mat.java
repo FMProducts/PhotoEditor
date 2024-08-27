@@ -1,6 +1,7 @@
 package org.opencv.core;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 
 // C++: class Mat
 //javadoc: Mat

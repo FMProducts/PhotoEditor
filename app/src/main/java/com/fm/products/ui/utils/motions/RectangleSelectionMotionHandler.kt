@@ -60,8 +60,8 @@ class RectangleSelectionMotionHandler(
 
     private fun rectangleSelectionHandleActionDown(x: Float, y: Float) {
 
-        val recImagePosition = rectangleSelectionState.drawOffset
-        val recImageSize = rectangleSelectionState.drawSize
+        val recImagePosition = rectangleSelectionState.imageOffset
+        val recImageSize = rectangleSelectionState.imageSize
         when {
             // tap on left top Point
             isInOffset(x, y, calculateLeftTopPoint(recImagePosition)) -> {
@@ -153,9 +153,9 @@ class RectangleSelectionMotionHandler(
                 x = rectangleSelectionState.rightBottom.x + dragLengthX,
                 y = rectangleSelectionState.rightBottom.y + dragLengthY,
             ),
-            drawOffset = rectangleSelectionState.drawOffset.copy(
-                x = rectangleSelectionState.drawOffset.x + dragLengthX,
-                y = rectangleSelectionState.drawOffset.y + dragLengthY,
+            imageOffset = rectangleSelectionState.imageOffset.copy(
+                x = rectangleSelectionState.imageOffset.x + dragLengthX,
+                y = rectangleSelectionState.imageOffset.y + dragLengthY,
             )
         )
 
@@ -173,8 +173,8 @@ class RectangleSelectionMotionHandler(
             leftTop = rectangleSelectionState.leftTop.copy(x = x, y = y),
             leftBottom = rectangleSelectionState.leftBottom.copy(x = x),
             rightTop = rectangleSelectionState.rightTop.copy(y = y),
-            drawOffset = rectangleSelectionState.drawOffset.copy(x = x.toInt(), y = y.toInt()),
-            drawSize = newDrawSize
+            imageOffset = rectangleSelectionState.imageOffset.copy(x = x.toInt(), y = y.toInt()),
+            imageSize = newDrawSize
         )
 
         if (checkIsNotMoveOutside(newRectangleSelectionPosition)) {
@@ -191,11 +191,11 @@ class RectangleSelectionMotionHandler(
             leftBottom = rectangleSelectionState.leftBottom.copy(x = x, y = y),
             leftTop = rectangleSelectionState.leftTop.copy(x = x),
             rightBottom = rectangleSelectionState.rightBottom.copy(y = y),
-            drawOffset = rectangleSelectionState.drawOffset.copy(
+            imageOffset = rectangleSelectionState.imageOffset.copy(
                 x = x.toInt(),
                 y = y.toInt() - newDrawSize.height,
             ),
-            drawSize = newDrawSize
+            imageSize = newDrawSize
         )
 
         if (checkIsNotMoveOutside(newRectangleSelectionPosition)) {
@@ -213,11 +213,11 @@ class RectangleSelectionMotionHandler(
             rightTop = rectangleSelectionState.rightTop.copy(x = x, y = y),
             leftTop = rectangleSelectionState.leftTop.copy(y = y),
             rightBottom = rectangleSelectionState.rightBottom.copy(x = x),
-            drawOffset = rectangleSelectionState.drawOffset.copy(
+            imageOffset = rectangleSelectionState.imageOffset.copy(
                 x = x.toInt() - newDrawSize.width,
                 y = y.toInt()
             ),
-            drawSize = newDrawSize,
+            imageSize = newDrawSize,
         )
 
 
@@ -235,11 +235,11 @@ class RectangleSelectionMotionHandler(
             rightBottom = rectangleSelectionState.rightBottom.copy(x = x, y = y),
             rightTop = rectangleSelectionState.rightTop.copy(x = x),
             leftBottom = rectangleSelectionState.leftBottom.copy(y = y),
-            drawOffset = rectangleSelectionState.drawOffset.copy(
+            imageOffset = rectangleSelectionState.imageOffset.copy(
                 x = x.toInt() - newDrawSize.width,
                 y = y.toInt() - newDrawSize.height,
             ),
-            drawSize = newDrawSize
+            imageSize = newDrawSize
         )
 
         if (checkIsNotMoveOutside(newRectangleSelectionPosition)) {

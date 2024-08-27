@@ -30,9 +30,14 @@ public class MatOfPoint2f extends Mat {
         //FIXME: do we need release() here?
     }
 
-    public MatOfPoint2f(Point...a) {
+    public MatOfPoint2f(Point... a) {
         super();
         fromArray(a);
+    }
+
+    public MatOfPoint2f(MatOfPoint m) {
+        super();
+        fromArray(m.toArray());
     }
 
     public void alloc(int elemNumber) {
