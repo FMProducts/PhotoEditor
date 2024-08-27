@@ -62,9 +62,15 @@ sealed class OtherGraphicTool(nameRes: Int, iconRes: Int) : GraphicTool(nameRes,
         iconRes = R.drawable.ic_remove_outline,
     )
 
+    data class PhotoFilter(val selectedFilter: ImageFilter = ImageFilter.None) : OtherGraphicTool(
+        nameRes = R.string.photo_filter,
+        iconRes = R.drawable.ic_photo_filter,
+    )
+
     companion object {
         fun values(): List<OtherGraphicTool> = listOf(
             BackgroundRemover,
+            PhotoFilter(),
         )
     }
 }

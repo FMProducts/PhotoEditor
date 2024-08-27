@@ -11,15 +11,10 @@ import android.widget.Toast
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.unit.IntOffset
 import com.fm.products.ui.models.CircleSelectionState
 import com.fm.products.ui.models.LassoSelectionState
 import com.fm.products.ui.models.RectangleSelectionState
 import com.fm.products.ui.models.SelectionState
-import com.fm.products.ui.utils.cropper.CircleCropper
-import com.fm.products.ui.utils.cropper.ImageCropper
-import com.fm.products.ui.utils.cropper.LassoCropper
-import com.fm.products.ui.utils.cropper.RectangleCropper
 import com.fm.products.ui.utils.selections.drawLassoSelection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -62,7 +57,14 @@ suspend fun Context.saveToDiskAndToast(
 
 fun Uri.toImageBitmap(context: Context): ImageBitmap {
     val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-        ImageDecoder.decodeBitmap(ImageDecoder.createSource(context.contentResolver, this))
+        ImageDecoder.decodeBitmap(
+            ImageDecoder.createSource(
+                context.contentResolver,
+                this
+            )
+        ) { decoder, _, _ ->
+            decoder.isMutableRequired = true
+        }
     } else {
         @Suppress("DEPRECATION")
         MediaStore.Images.Media.getBitmap(context.contentResolver, this)

@@ -7,4 +7,5 @@
     <string name="magnetic_lasso_selection">Magnetic lasso selection</string>
     <string name="none_selection">Not chosen</string>
     <string name="remove_background">Remove background</string>
+    <string name="photo_filter">Photo Filter</string>
 </resources>

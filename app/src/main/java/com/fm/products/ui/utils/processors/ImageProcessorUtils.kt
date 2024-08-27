@@ -16,6 +16,10 @@ fun createImageProcessor(
             RemoveBackgroundProcessor(context)
         }
 
+        is OtherGraphicTool.PhotoFilter -> {
+            FilterImageProcessor(graphicTool.selectedFilter)
+        }
+
         else -> {
             EmptyImageProcessor()
         }

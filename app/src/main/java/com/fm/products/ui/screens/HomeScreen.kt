@@ -2,7 +2,6 @@
 
 package com.fm.products.ui.screens
 
-import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -43,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.fm.products.ui.components.ExportButton
 import com.fm.products.ui.models.GraphicTool
+import com.fm.products.ui.screens.bottomsheet.SelectImageFilterBottomSheet
 import com.fm.products.ui.screens.bottomsheet.SelectToolsBottomSheet
 import com.fm.products.ui.screens.components.HomeToolbar
 import com.fm.products.ui.theme.PhotoEditorTheme
@@ -72,23 +72,22 @@ fun HomeScreen() {
 private fun HomeScreenContent(
     viewModel: HomeViewModel = viewModel(),
 ) {
+    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
 
     val picker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = viewModel::setImageUri
     )
-
-    var isShowSelectToolsBottomSheet by remember { mutableStateOf(false) }
+    val sourceImage = uiState.imageUri?.toImageBitmap(context)
 
     Column {
         HomeToolbar(
             selectedTool = uiState.graphicTool,
-            onClickMore = { isShowSelectToolsBottomSheet = true },
+            onClickMore = { viewModel.setSelectToolsBottomSheetVisibility(true) },
         )
 
-        val uri = uiState.imageUri
-        if (uri == null) {
+        if (sourceImage == null) {
             SelectImageState(
                 onClickSelectImage = {
                     picker.launch(
@@ -98,17 +97,25 @@ private fun HomeScreenContent(
             )
         } else {
             ImageEditState(
-                imageUri = uri,
+                sourceImage = sourceImage,
                 uiState = uiState,
                 changeProgressState = viewModel::changeProgressState
             )
         }
     }
 
-    if (isShowSelectToolsBottomSheet) {
+    if (uiState.isShowSelectToolsBottomSheet) {
         SelectToolsBottomSheet(
-            onDismissRequest = { isShowSelectToolsBottomSheet = false },
+            onDismissRequest = { viewModel.setSelectToolsBottomSheetVisibility(false) },
             onSelectTool = viewModel::updateSelectionTool,
+        )
+    }
+
+    if (uiState.isShowFilterBottomSheet && sourceImage != null) {
+        SelectImageFilterBottomSheet(
+            onDismissRequest = { viewModel.setFilterBottomSheetVisibility(false) },
+            targetImage = sourceImage,
+            onSelectFilter = viewModel::updateImageFilter,
         )
     }
 }
@@ -131,13 +138,10 @@ private fun SelectImageState(
 
 @Composable
 private fun ImageEditState(
-    imageUri: Uri,
+    sourceImage: ImageBitmap,
     uiState: HomeViewModel.UiState,
     changeProgressState: (Boolean) -> Unit,
 ) {
-    val context = LocalContext.current
-
-    val sourceImage = remember { imageUri.toImageBitmap(context) }
 
     Box(
         contentAlignment = Alignment.Center,

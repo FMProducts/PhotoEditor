@@ -23,6 +23,11 @@ fun cropImage(
         OtherGraphicTool.BackgroundRemover -> {
             image.asAndroidBitmap()
         }
+
+        is OtherGraphicTool.PhotoFilter -> {
+            image.asAndroidBitmap()
+        }
+
         else -> {
             cropImageByState(
                 image = image,
