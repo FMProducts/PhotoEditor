@@ -18,7 +18,7 @@ import kotlinx.coroutines.CoroutineScope
 
 
 fun createMotionHandler(
-    selectionTool: SelectionTool,
+    graphicTool: GraphicTool,
     imageSize: IntSize,
     imagePosition: IntOffset,
     canvasSize: Size,
@@ -26,8 +26,8 @@ fun createMotionHandler(
     coroutineScope: CoroutineScope,
     context: Context,
 ): MotionHandler {
-    return when (selectionTool) {
-        SelectionTool.RectangleSelection -> {
+    return when (graphicTool) {
+        SelectionGraphicTool.RectangleSelection -> {
             RectangleSelectionMotionHandler(
                 rectangleSelectionState = calculateDefaultRectangleSelectionPosition(
                     drawSize = imageSize,
@@ -38,7 +38,7 @@ fun createMotionHandler(
             )
         }
 
-        SelectionTool.CircleSelection -> {
+        SelectionGraphicTool.CircleSelection -> {
             CircleSelectionMotionHandler(
                 circleSelectionState = calculateDefaultCircleSelectionPosition(
                     drawSize = imageSize,
@@ -49,7 +49,7 @@ fun createMotionHandler(
             )
         }
 
-        SelectionTool.LassoSelection -> {
+        SelectionGraphicTool.LassoSelection -> {
             LassoSelectionMotionHandler(
                 lassoSelectionState = LassoSelectionState(),
                 imagePosition = imagePosition,
@@ -57,7 +57,7 @@ fun createMotionHandler(
             )
         }
 
-        SelectionTool.MagneticLassoSelection -> {
+        SelectionGraphicTool.MagneticLassoSelection -> {
             MagneticLassoSelectionMotionHandler(
                 lassoSelectionState = LassoSelectionState(),
                 imagePosition = imagePosition,
@@ -69,7 +69,7 @@ fun createMotionHandler(
             )
         }
 
-        SelectionTool.None -> {
+        else -> {
             EmptyMotionHandler()
         }
     }

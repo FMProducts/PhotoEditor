@@ -81,10 +81,12 @@ private fun HomeScreenContent(
         onResult = viewModel::setImageUri
     )
 
+    var isShowSelectToolsBottomSheet by remember { mutableStateOf(false) }
+
     Column {
         HomeToolbar(
-            selectedTool = uiState.selectionTool,
-            onToolsChanged = viewModel::updateSelectionTool,
+            selectedTool = uiState.graphicTool,
+            onClickMore = { isShowSelectToolsBottomSheet = true },
         )
 
         val uri = uiState.imageUri
@@ -103,6 +105,13 @@ private fun HomeScreenContent(
                 changeProgressState = viewModel::changeProgressState
             )
         }
+    }
+
+    if (isShowSelectToolsBottomSheet) {
+        SelectToolsBottomSheet(
+            onDismissRequest = { isShowSelectToolsBottomSheet = false },
+            onSelectTool = viewModel::updateSelectionTool,
+        )
     }
 }
 
@@ -136,7 +145,7 @@ private fun ImageEditState(
         contentAlignment = Alignment.Center,
     ) {
         HomeCanvas(
-            selectedTool = uiState.selectionTool,
+            selectedTool = uiState.graphicTool,
             image = image,
             changeProgressState = changeProgressState,
         )
@@ -164,7 +173,7 @@ private fun HomeProgressBar() {
 
 @Composable
 private fun HomeCanvas(
-    selectedTool: SelectionTool,
+    selectedTool: GraphicTool,
     image: ImageBitmap,
     changeProgressState: (Boolean) -> Unit,
 ) {
@@ -179,7 +188,7 @@ private fun HomeCanvas(
 
     val motionHandler: MotionHandler by remember(selectedTool, imageSize) {
         val motionHandler = createMotionHandler(
-            selectionTool = selectedTool,
+            graphicTool = selectedTool,
             imageSize = imageSize,
             imagePosition = imagePosition,
             canvasSize = canvasSize,
@@ -244,7 +253,7 @@ private fun HomeCanvas(
     }
 
     ExportButton(
-        isVisible = selectedTool != SelectionTool.None,
+        isVisible = selectedTool != GraphicTool.None,
         onClick = {
             coroutineScope.launch(Dispatchers.IO) {
                 changeProgressState(true)

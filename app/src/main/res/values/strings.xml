@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">PhotoEditor</string>
+
+    <string name="rectangle_selection">Rectangular selection</string>
+    <string name="circle_selection">Circle selection</string>
+    <string name="lasso_selection">Lasso selection</string>
+    <string name="magnetic_lasso_selection">Magnetic lasso selection</string>
+    <string name="none_selection">Not chosen</string>
 </resources>
