@@ -15,7 +15,9 @@ import com.fm.products.ui.models.CircleSelectionState
 import com.fm.products.ui.models.LassoSelectionState
 import com.fm.products.ui.models.RectangleSelectionState
 import com.fm.products.ui.models.SelectionState
+import com.fm.products.ui.utils.selections.drawCircleSelection
 import com.fm.products.ui.utils.selections.drawLassoSelection
+import com.fm.products.ui.utils.selections.drawRectangleSelection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File

@@ -6,10 +6,10 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import com.fm.products.ui.models.CircleSelectionState
 import com.fm.products.ui.models.CircleSelectionState.ActivePoint
-import com.fm.products.ui.utils.calculateBottomPoint
-import com.fm.products.ui.utils.calculateLeftPoint
-import com.fm.products.ui.utils.calculateRightPoint
-import com.fm.products.ui.utils.calculateTopPoint
+import com.fm.products.ui.utils.selections.calculateBottomPoint
+import com.fm.products.ui.utils.selections.calculateLeftPoint
+import com.fm.products.ui.utils.selections.calculateRightPoint
+import com.fm.products.ui.utils.selections.calculateTopPoint
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update

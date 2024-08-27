@@ -9,8 +9,8 @@ import androidx.compose.ui.unit.IntSize
 import com.fm.products.ui.models.GraphicTool
 import com.fm.products.ui.models.LassoSelectionState
 import com.fm.products.ui.models.SelectionGraphicTool
-import com.fm.products.ui.utils.calculateDefaultCircleSelectionPosition
-import com.fm.products.ui.utils.calculateDefaultRectangleSelectionPosition
+import com.fm.products.ui.utils.selections.calculateDefaultCircleSelectionPosition
+import com.fm.products.ui.utils.selections.calculateDefaultRectangleSelectionPosition
 import kotlinx.coroutines.CoroutineScope
 import kotlin.math.pow
 import kotlin.math.sqrt

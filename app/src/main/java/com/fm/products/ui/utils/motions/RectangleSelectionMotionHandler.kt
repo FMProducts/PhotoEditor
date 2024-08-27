@@ -6,10 +6,10 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import com.fm.products.ui.models.RectangleSelectionState
 import com.fm.products.ui.models.RectangleSelectionState.ActivePoint
-import com.fm.products.ui.utils.calculateLeftBottomPoint
-import com.fm.products.ui.utils.calculateLeftTopPoint
-import com.fm.products.ui.utils.calculateRightBottomPoint
-import com.fm.products.ui.utils.calculateRightTopPoint
+import com.fm.products.ui.utils.selections.calculateLeftBottomPoint
+import com.fm.products.ui.utils.selections.calculateLeftTopPoint
+import com.fm.products.ui.utils.selections.calculateRightBottomPoint
+import com.fm.products.ui.utils.selections.calculateRightTopPoint
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update

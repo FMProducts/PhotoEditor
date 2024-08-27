@@ -1,4 +1,4 @@
-package com.fm.products.ui.utils
+package com.fm.products.ui.utils.selections
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -9,6 +9,8 @@ import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.unit.toSize
 import com.fm.products.ui.models.RectangleSelectionState
 import com.fm.products.ui.models.RectangleSelectionState.ActivePoint
+import com.fm.products.ui.utils.dashStyle
+import com.fm.products.ui.utils.pointColor
 
 
 fun calculateDefaultRectangleSelectionPosition(

@@ -1,4 +1,4 @@
-package com.fm.products.ui.utils
+package com.fm.products.ui.utils.selections
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -6,6 +6,8 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.unit.IntSize
 import com.fm.products.ui.models.CircleSelectionState
 import com.fm.products.ui.models.CircleSelectionState.ActivePoint
+import com.fm.products.ui.utils.dashStyle
+import com.fm.products.ui.utils.pointColor
 import kotlin.math.min
 
 
