@@ -8,7 +8,6 @@ import com.fm.products.ui.models.LassoSelectionState
 import com.fm.products.ui.models.LassoSelectionState.Point
 import com.fm.products.ui.models.LassoSelectionState.PointDirection
 import com.fm.products.ui.utils.selections.calculateDirection
-import com.fm.products.ui.utils.calculateDistanceBetweenPoints
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update

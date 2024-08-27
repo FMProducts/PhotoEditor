@@ -17,6 +17,7 @@ sealed class GraphicTool(
     companion object {
         fun values(): List<GraphicTool> = buildList {
             addAll(SelectionGraphicTool.values())
+            addAll(OtherGraphicTool.values())
             add(None)
         }
     }
@@ -50,6 +51,20 @@ sealed class SelectionGraphicTool(nameRes: Int, iconRes: Int) : GraphicTool(name
             CircleSelection,
             LassoSelection,
             MagneticLassoSelection,
+        )
+    }
+}
+
+sealed class OtherGraphicTool(nameRes: Int, iconRes: Int) : GraphicTool(nameRes, iconRes) {
+
+    data object BackgroundRemover : OtherGraphicTool(
+        nameRes = R.string.remove_background,
+        iconRes = R.drawable.ic_remove_outline,
+    )
+
+    companion object {
+        fun values(): List<OtherGraphicTool> = listOf(
+            BackgroundRemover,
         )
     }
 }

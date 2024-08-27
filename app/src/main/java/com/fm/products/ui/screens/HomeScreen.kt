@@ -2,8 +2,6 @@
 
 package com.fm.products.ui.screens
 
-import android.content.Context
-import android.graphics.Bitmap
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -43,27 +41,27 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.fm.products.ui.utils.motions.MagneticLassoSelectionMotionHandler
 import com.fm.products.ui.components.ExportButton
-import com.fm.products.ui.models.SelectionState
-import com.fm.products.ui.models.SelectionTool
+import com.fm.products.ui.models.GraphicTool
+import com.fm.products.ui.screens.bottomsheet.SelectToolsBottomSheet
 import com.fm.products.ui.screens.components.HomeToolbar
 import com.fm.products.ui.theme.PhotoEditorTheme
 import com.fm.products.ui.utils.calculateDrawImageOffset
 import com.fm.products.ui.utils.calculateDrawImageSize
-import com.fm.products.ui.utils.createMotionHandler
-import com.fm.products.ui.utils.cropByState
+import com.fm.products.ui.utils.cropper.cropImage
 import com.fm.products.ui.utils.drawSelectionByState
 import com.fm.products.ui.utils.emptyIntOffset
 import com.fm.products.ui.utils.emptyIntSize
 import com.fm.products.ui.utils.emptySize
 import com.fm.products.ui.utils.isEmpty
+import com.fm.products.ui.utils.motions.MagneticLassoSelectionMotionHandler
 import com.fm.products.ui.utils.motions.MotionHandler
-import com.fm.products.ui.utils.saveToDisk
+import com.fm.products.ui.utils.motions.createMotionHandler
+import com.fm.products.ui.utils.processors.ImageProcessor
+import com.fm.products.ui.utils.processors.createImageProcessor
+import com.fm.products.ui.utils.saveToDiskAndToast
 import com.fm.products.ui.utils.toImageBitmap
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @Composable
 fun HomeScreen() {
@@ -139,14 +137,14 @@ private fun ImageEditState(
 ) {
     val context = LocalContext.current
 
-    val image = remember { imageUri.toImageBitmap(context) }
+    val sourceImage = remember { imageUri.toImageBitmap(context) }
 
     Box(
         contentAlignment = Alignment.Center,
     ) {
         HomeCanvas(
             selectedTool = uiState.graphicTool,
-            image = image,
+            sourceImage = sourceImage,
             changeProgressState = changeProgressState,
         )
         if (uiState.isProgress) {
@@ -174,11 +172,15 @@ private fun HomeProgressBar() {
 @Composable
 private fun HomeCanvas(
     selectedTool: GraphicTool,
-    image: ImageBitmap,
+    sourceImage: ImageBitmap,
     changeProgressState: (Boolean) -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+
+    var image: ImageBitmap by remember {
+        mutableStateOf(sourceImage)
+    }
 
     var imagePosition: IntOffset by remember { mutableStateOf(emptyIntOffset()) }
 
@@ -199,6 +201,12 @@ private fun HomeCanvas(
         mutableStateOf(motionHandler)
     }
 
+    val imageProcessor: ImageProcessor by remember(selectedTool) {
+        mutableStateOf(
+            createImageProcessor(selectedTool, context)
+        )
+    }
+
     val selectionState by motionHandler.selectionState.collectAsState()
 
     LaunchedEffect(imagePosition, imageSize) {
@@ -210,6 +218,17 @@ private fun HomeCanvas(
             is MagneticLassoSelectionMotionHandler -> {
                 handler.changeProgressBarState = changeProgressState
             }
+        }
+    }
+
+    LaunchedEffect(imageProcessor) {
+        try {
+            changeProgressState(true)
+            val img = imageProcessor.process(sourceImage)
+            img?.let { image = it }
+            changeProgressState(false)
+        } catch (e: Exception) {
+            Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -255,10 +274,10 @@ private fun HomeCanvas(
     ExportButton(
         isVisible = selectedTool != GraphicTool.None,
         onClick = {
-            coroutineScope.launch(Dispatchers.IO) {
+            coroutineScope.launch {
                 changeProgressState(true)
-                val bitmap = cropImage(image, selectionState, canvasSize, imagePosition)
-                saveToDiskAndToast(bitmap, context)
+                val img = cropImage(image, selectedTool, selectionState, canvasSize, imagePosition)
+                context.saveToDiskAndToast(img)
                 changeProgressState(false)
             }
         },
@@ -266,27 +285,6 @@ private fun HomeCanvas(
     )
 }
 
-private suspend fun cropImage(
-    image: ImageBitmap,
-    selectionState: SelectionState,
-    canvasSize: Size,
-    imagePosition: IntOffset,
-) = withContext(Dispatchers.IO) {
-    image.cropByState(
-        selectionState = selectionState,
-        canvasSize = canvasSize,
-        imagePosition = imagePosition,
-    )
-}
-
-private suspend fun saveToDiskAndToast(
-    image: Bitmap?,
-    context: Context,
-) = withContext(Dispatchers.Main) {
-    image?.saveToDisk()?.let {
-        Toast.makeText(context, "Picture saved", Toast.LENGTH_SHORT).show()
-    }
-}
 
 @Composable
 @Preview

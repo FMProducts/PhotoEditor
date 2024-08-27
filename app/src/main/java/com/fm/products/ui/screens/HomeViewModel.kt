@@ -2,7 +2,7 @@ package com.fm.products.ui.screens
 
 import android.net.Uri
 import androidx.lifecycle.ViewModel
-import com.fm.products.ui.models.SelectionTool
+import com.fm.products.ui.models.GraphicTool
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update

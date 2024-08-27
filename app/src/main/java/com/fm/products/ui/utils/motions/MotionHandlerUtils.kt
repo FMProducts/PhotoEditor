@@ -1,4 +1,4 @@
-package com.fm.products.ui.utils
+package com.fm.products.ui.utils.motions
 
 import android.content.Context
 import androidx.compose.ui.geometry.Size
@@ -6,15 +6,19 @@ import androidx.compose.ui.geometry.center
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import com.fm.products.ui.utils.motions.MagneticLassoSelectionMotionHandler
+import com.fm.products.ui.models.GraphicTool
 import com.fm.products.ui.models.LassoSelectionState
-import com.fm.products.ui.models.SelectionTool
-import com.fm.products.ui.utils.motions.CircleSelectionMotionHandler
-import com.fm.products.ui.utils.motions.EmptyMotionHandler
-import com.fm.products.ui.utils.motions.LassoSelectionMotionHandler
-import com.fm.products.ui.utils.motions.MotionHandler
-import com.fm.products.ui.utils.motions.RectangleSelectionMotionHandler
+import com.fm.products.ui.models.SelectionGraphicTool
+import com.fm.products.ui.utils.calculateDefaultCircleSelectionPosition
+import com.fm.products.ui.utils.calculateDefaultRectangleSelectionPosition
 import kotlinx.coroutines.CoroutineScope
+import kotlin.math.pow
+import kotlin.math.sqrt
+
+
+fun calculateDistanceBetweenPoints(x: Float, y: Float, x2: Float, y2: Float): Float {
+    return sqrt((x - x2).pow(2) + (y - y2).pow(2))
+}
 
 
 fun createMotionHandler(

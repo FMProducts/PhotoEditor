@@ -1,8 +1,15 @@
 package com.fm.products.ui.utils
 
+import android.content.Context
 import android.graphics.Bitmap
-import androidx.compose.ui.geometry.Size
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
+import android.os.Environment
+import android.provider.MediaStore
+import android.widget.Toast
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.unit.IntOffset
 import com.fm.products.ui.models.CircleSelectionState
@@ -14,7 +21,10 @@ import com.fm.products.ui.utils.cropper.ImageCropper
 import com.fm.products.ui.utils.cropper.LassoCropper
 import com.fm.products.ui.utils.cropper.RectangleCropper
 import com.fm.products.ui.utils.selections.drawLassoSelection
-
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
 
 fun DrawScope.drawSelectionByState(selectionState: SelectionState) {
     when (selectionState) {
@@ -32,42 +42,30 @@ fun DrawScope.drawSelectionByState(selectionState: SelectionState) {
     }
 }
 
-fun ImageBitmap.cropByState(
-    selectionState: SelectionState,
-    canvasSize: Size,
-    imagePosition: IntOffset,
-): Bitmap? {
-    val cropper: ImageCropper? = when (selectionState) {
-        is RectangleSelectionState -> {
-            RectangleCropper(
-                rectangleSelectionState = selectionState,
-                image = this,
-                canvasSize = canvasSize,
-                imageOffset = imagePosition
-            )
-        }
+fun Bitmap.saveToDisk() {
+    val file = File(
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+        "screenshot-${System.currentTimeMillis()}.png"
+    )
 
-        is CircleSelectionState -> {
-            CircleCropper(
-                circleSelectionState = selectionState,
-                image = this,
-                canvasSize = canvasSize,
-                imageOffset = imagePosition
-            )
-        }
+    compress(Bitmap.CompressFormat.PNG, 100, FileOutputStream(file))
+}
 
-        is LassoSelectionState -> {
-            LassoCropper(
-                lassoSelectionState = selectionState,
-                image = this,
-                canvasSize = canvasSize,
-                imageOffset = imagePosition,
-            )
-        }
 
-        else -> {
-            null
-        }
+suspend fun Context.saveToDiskAndToast(
+    image: Bitmap?,
+): Unit = withContext(Dispatchers.Main) {
+    image?.saveToDisk()?.let {
+        Toast.makeText(this@saveToDiskAndToast, "Picture saved", Toast.LENGTH_SHORT).show()
     }
-    return cropper?.crop()
+}
+
+fun Uri.toImageBitmap(context: Context): ImageBitmap {
+    val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        ImageDecoder.decodeBitmap(ImageDecoder.createSource(context.contentResolver, this))
+    } else {
+        @Suppress("DEPRECATION")
+        MediaStore.Images.Media.getBitmap(context.contentResolver, this)
+    }
+    return bitmap.asImageBitmap()
 }

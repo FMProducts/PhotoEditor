@@ -6,16 +6,16 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import com.fm.products.ui.utils.helpers.RemoveBackgroundHelper
 import com.fm.products.ui.models.LassoSelectionState
-import com.fm.products.ui.utils.selections.calculateLeftPoint
-import com.fm.products.ui.utils.selections.calculateTopPoint
 import com.fm.products.ui.utils.cropper.RectangleCropper
 import com.fm.products.ui.utils.finContours
 import com.fm.products.ui.utils.findMaxByArea
-import com.fm.products.ui.utils.selections.mapToRectangleSelectionState
+import com.fm.products.ui.utils.processors.removeBackground
 import com.fm.products.ui.utils.processToCanny
 import com.fm.products.ui.utils.processToGray
+import com.fm.products.ui.utils.selections.calculateLeftPoint
+import com.fm.products.ui.utils.selections.calculateTopPoint
+import com.fm.products.ui.utils.selections.mapToRectangleSelectionState
 import com.fm.products.ui.utils.toMat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -90,7 +90,7 @@ class MagneticLassoSelectionMotionHandler(
     }
 
     private suspend fun processImage(bitmap: Bitmap): Mat = withContext(Dispatchers.Default) {
-        val objectBitmap = RemoveBackgroundHelper.getResult(bitmap, context)
+        val objectBitmap = removeBackground(bitmap, context)
         val image = objectBitmap ?: bitmap
         val src = image.toMat()
 
